@@ -36,7 +36,7 @@ class RequestInformationTest extends TestCase {
      * @throws UriException
      */
     public function testSetQueryParameters(): void {
-        $this->requestInformation->urlTemplate = '{?%24select,top}';
+        $this->requestInformation->urlTemplate = '{?%24select,top,%24count}';
 
         $queryParam = new TestQueryParameter();
         $this->requestInformation->setQueryParameters($queryParam);
@@ -92,6 +92,21 @@ class RequestInformationTest extends TestCase {
         $uri = $requestInfo->getUri();
         $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01T00%3A00%3A00%2B00%3A00',toDateTime='2022-08-02T00%3A00%3A00%2B00%3A00')", $uri);
     }
+
+    /**
+     * @throws UriException
+     */
+    public function testCanHandleBooleanTypes(): void {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "http://localhost/users{?%24count}";
+
+        $requestInfo->setPathParameters(['%24count' => true]);
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals('http://localhost/users?%24count=1', $uri);
+    }
 }
 
 class TestQueryParameter {
@@ -99,5 +114,6 @@ class TestQueryParameter {
      * @QueryParameter("%24select")
      */
     public ?array $select = null;
+    public bool $count = false;
     public int $top = 10; // no annotation
 }

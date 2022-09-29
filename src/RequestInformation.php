@@ -84,7 +84,7 @@ class RequestInformation {
      * @return mixed
      */
     private function sanitizeValue($value) {
-        if (is_a($value, DateTime::class)) {
+        if (is_object($value) && is_a($value, DateTime::class)) {
             return $value->format(DateTimeInterface::ATOM);
         }
         return $value;
@@ -198,7 +198,7 @@ class RequestInformation {
 
     /**
      * Set the headers and update if we already have some headers.
-     * @param array $headers
+     * @param array<string, mixed> $headers
      */
     public function setHeaders(array $headers): void {
         $this->headers = array_merge($this->headers, $headers);
@@ -206,7 +206,7 @@ class RequestInformation {
 
     /**
      * Get the headers and update if we already have some headers.
-     * @return array
+     * @return array<string, mixed>
      */
     public function getHeaders(): array {
         return $this->headers;
