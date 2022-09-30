@@ -72,6 +72,10 @@ class RequestInformation {
             foreach ($this->pathParameters as $key => $pathParameter) {
                 $this->pathParameters[$key] = $this->sanitizeValue($pathParameter);
             }
+
+            foreach ($this->queryParameters as $key => $queryParameter) {
+                $this->queryParameters[$key] = $this->sanitizeValue($queryParameter);
+            }
             $params = array_merge($this->pathParameters, $this->queryParameters);
 
             return $template->expand($params);
