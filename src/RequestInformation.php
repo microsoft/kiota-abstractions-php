@@ -1,6 +1,8 @@
 <?php
 namespace Microsoft\Kiota\Abstractions;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Exception;
@@ -8,6 +10,7 @@ use InvalidArgumentException;
 use League\Uri\Contracts\UriException;
 use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use Microsoft\Kiota\Abstractions\Types\Date;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
@@ -62,10 +65,33 @@ class RequestInformation {
             $this->setUri($this->pathParameters[self::$RAW_URL_KEY]);
         } else {
             $template = new UriTemplate($this->urlTemplate);
+            if (substr_count(strtolower($this->urlTemplate), '{+baseurl}') > 0 && !isset($this->pathParameters['baseurl'])) {
+                throw new InvalidArgumentException('"PathParameters must contain a value for "baseurl" for the url to be built.');
+            }
+
+            foreach ($this->pathParameters as $key => $pathParameter) {
+                $this->pathParameters[$key] = $this->sanitizeValue($pathParameter);
+            }
+
+            foreach ($this->queryParameters as $key => $queryParameter) {
+                $this->queryParameters[$key] = $this->sanitizeValue($queryParameter);
+            }
             $params = array_merge($this->pathParameters, $this->queryParameters);
+
             return $template->expand($params);
         }
         return $this->uri;
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    private function sanitizeValue($value) {
+        if (is_object($value) && is_a($value, DateTime::class)) {
+            return $value->format(DateTimeInterface::ATOM);
+        }
+        return $value;
     }
 
     /**
@@ -172,5 +198,21 @@ class RequestInformation {
      */
     public function setPathParameters(array $pathParameters): void {
         $this->pathParameters = $pathParameters;
+    }
+
+    /**
+     * Set the headers and update if we already have some headers.
+     * @param array<string, mixed> $headers
+     */
+    public function setHeaders(array $headers): void {
+        $this->headers = array_merge($this->headers, $headers);
+    }
+
+    /**
+     * Get the headers and update if we already have some headers.
+     * @return array<string, mixed>
+     */
+    public function getHeaders(): array {
+        return $this->headers;
     }
 }
