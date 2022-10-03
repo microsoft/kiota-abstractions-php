@@ -2,6 +2,7 @@
 namespace Microsoft\Kiota\Abstractions;
 
 use Http\Promise\Promise;
+use Microsoft\Kiota\Abstractions\Serialization\ParseNodeFactory;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriterFactory;
 use Microsoft\Kiota\Abstractions\Store\BackingStoreFactory;
 
@@ -22,6 +23,13 @@ interface RequestAdapter {
      * @return SerializationWriterFactory the serialization writer factory currently in use for the HTTP core service.
      */
     public function getSerializationWriterFactory(): SerializationWriterFactory;
+
+    /**
+     * Gets the Parse Node Factory in use
+     *
+     * @return ParseNodeFactory
+     */
+    public function getParseNodeFactory(): ParseNodeFactory;
 
     /**
      * Executes the HTTP request specified by the given RequestInformation and returns the deserialized response model collection.
