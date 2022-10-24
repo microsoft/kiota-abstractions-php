@@ -2,6 +2,7 @@
 namespace Microsoft\Kiota\Abstractions;
 
 use Http\Promise\Promise;
+use Microsoft\Kiota\Abstractions\Authentication\AuthenticationProvider;
 use Microsoft\Kiota\Abstractions\Serialization\ParseNodeFactory;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriterFactory;
 use Microsoft\Kiota\Abstractions\Store\BackingStoreFactory;
@@ -86,4 +87,17 @@ interface RequestAdapter {
      * @return string The base url for every request.
      */
     public function getBaseUrl(): string;
+
+    /**
+     * Set a custom authentication provider for the request adapter.
+     * @param AuthenticationProvider $authenticationProvider
+     * @return void
+     */
+    public function setAuthenticationProvider(AuthenticationProvider $authenticationProvider): void;
+
+    /**
+     * Get the current authentication provider for the request adapter.
+     * @return AuthenticationProvider
+     */
+    public function getAuthenticationProvider(): AuthenticationProvider;
 }
