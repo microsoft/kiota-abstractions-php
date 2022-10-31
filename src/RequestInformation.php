@@ -10,7 +10,6 @@ use InvalidArgumentException;
 use League\Uri\Contracts\UriException;
 use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
-use Microsoft\Kiota\Abstractions\Types\Date;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
@@ -147,25 +146,75 @@ class RequestInformation {
     }
 
     /**
-     * Sets the request body from a model with the specified content type.
+     * Sets the request body from a model using the specified content type.
+     *
      * @param RequestAdapter $requestAdapter The adapter service to get the serialization writer from.
      * @param string $contentType the content type.
-     * @param Parsable ...$values the models.
+     * @param Parsable $value the models.
      */
-    public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable ...$values): void {
-        if (empty($values)) {
-            throw new InvalidArgumentException('$values cannot be empty.');
-        }
-
+    public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable $value): void {
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+            $writer->writeObjectValue(null, $value);
             $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->content = $writer->getSerializedContent();
+        } catch (Exception $ex) {
+            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        }
+    }
 
-            if (count($values) === 1) {
-                $writer->writeObjectValue(null, $values[0]);
-            } else {
-                $writer->writeCollectionOfObjectValues(null, $values);
-            }
+    /**
+     * Sets the request body from a collection of models using the specified content type
+     *
+     * @param RequestAdapter $requestAdapter
+     * @param string $contentType
+     * @param Parsable[] $values
+     * @return void
+     */
+    public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void
+    {
+        try {
+            $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+            $writer->writeCollectionOfObjectValues(null, $values);
+            $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->content = $writer->getSerializedContent();
+        } catch (Exception $ex) {
+            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        }
+    }
+
+    /**
+     * Sets the request body from a scalar value(https://www.php.net/manual/en/language.types.intro.php)
+     *
+     * @param RequestAdapter $requestAdapter
+     * @param string $contentType
+     * @param int|string|bool|float $value
+     * @return void
+     */
+    public function setContentFromScalar(RequestAdapter $requestAdapter, string $contentType, $value): void {
+        try {
+            $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+            $writer->writeAnyValue(null, $value);
+            $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->content = $writer->getSerializedContent();
+        } catch (Exception $ex) {
+            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        }
+    }
+
+    /**
+     *  Sets the request body from a collection of scalar values(https://www.php.net/manual/en/language.types.intro.php) using the $contentType
+     *
+     * @param RequestAdapter $requestAdapter
+     * @param string $contentType
+     * @param array<int|float|string|bool> $values
+     * @return void
+     */
+    public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void {
+        try {
+            $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+            $writer->writeCollectionOfPrimitiveValues(null, $values);
+            $this->headers[self::$contentTypeHeader] = $contentType;
             $this->content = $writer->getSerializedContent();
         } catch (Exception $ex) {
             throw new RuntimeException('could not serialize payload.', 1, $ex);
