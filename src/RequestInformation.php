@@ -158,8 +158,8 @@ class RequestInformation {
             $writer->writeObjectValue(null, $value);
             $this->headers[self::$contentTypeHeader] = $contentType;
             $this->content = $writer->getSerializedContent();
-        } catch (Exception $ex) {
-            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        } catch (Exception $exception) {
+            throw new RuntimeException('could not serialize payload.', 1, $exception);
         }
     }
 
@@ -178,8 +178,8 @@ class RequestInformation {
             $writer->writeCollectionOfObjectValues(null, $values);
             $this->headers[self::$contentTypeHeader] = $contentType;
             $this->content = $writer->getSerializedContent();
-        } catch (Exception $ex) {
-            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        } catch (Exception $exception) {
+            throw new RuntimeException('could not serialize payload.', 1, $exception);
         }
     }
 
@@ -197,8 +197,8 @@ class RequestInformation {
             $writer->writeAnyValue(null, $value);
             $this->headers[self::$contentTypeHeader] = $contentType;
             $this->content = $writer->getSerializedContent();
-        } catch (Exception $ex) {
-            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        } catch (Exception $exception) {
+            throw new RuntimeException('could not serialize payload.', 1, $exception);
         }
     }
 
@@ -216,8 +216,8 @@ class RequestInformation {
             $writer->writeCollectionOfPrimitiveValues(null, $values);
             $this->headers[self::$contentTypeHeader] = $contentType;
             $this->content = $writer->getSerializedContent();
-        } catch (Exception $ex) {
-            throw new RuntimeException('could not serialize payload.', 1, $ex);
+        } catch (Exception $exception) {
+            throw new RuntimeException('could not serialize payload.', 1, $exception);
         }
     }
 
