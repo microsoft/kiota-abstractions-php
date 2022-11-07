@@ -49,7 +49,7 @@ class SerializationWriterFactoryRegistry implements SerializationWriterFactory {
         if (array_key_exists($cleanedContentType, $this->contentTypeAssociatedFactories)) {
             return $this->contentTypeAssociatedFactories[$cleanedContentType]->getSerializationWriter($cleanedContentType);
         }
-        throw new UnexpectedValueException('Content type ' . $contentType . ' does not have a factory to be parsed');
+        throw new UnexpectedValueException('Content type ' . $contentType . ' does not have a factory to be parsed. Add a SerializationWriter factory to support the content type.');
     }
 
     public function getValidContentType(): string {
