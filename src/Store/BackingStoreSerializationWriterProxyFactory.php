@@ -17,40 +17,25 @@ class BackingStoreSerializationWriterProxyFactory extends SerializationWriterPro
      */
     public function __construct(SerializationWriterFactory $concreteSerializationWriterFactory){
         $onBeforeObjectSerialization = static function (Parsable $model) {
-            if (is_a($model, BackedModel::class)) {
-                $backedModel = $model;
-                $backingStore = $backedModel->getBackingStore();
-                if ($backingStore !== null) {
-                    $backingStore->setReturnOnlyChangedValues(true);
-                }
+            if ($model instanceof BackedModel && $model->getBackingStore()) {
+                $model->getBackingStore()->setReturnOnlyChangedValues(true);
             }
         };
 
         $onAfterObjectSerialization = static function (Parsable $model) {
-            if (is_a($model, BackedModel::class)) {
-                $backedModel = $model;
-                $backingStore = $backedModel->getBackingStore();
-
-                if ($backingStore !== null) {
-                    $backingStore->setReturnOnlyChangedValues(false);
-                    $backingStore->setIsInitializationCompleted(true);
-                }
+            if ($model instanceof BackedModel && $model->getBackingStore()) {
+                $model->getBackingStore()->setReturnOnlyChangedValues(false);
+                $model->getBackingStore()->setIsInitializationCompleted(true);
             }
         };
 
         $onStartObjectSerialization = static function (Parsable $model, SerializationWriter $serializationWriter) {
-            if (is_a($model, BackedModel::class)) {
-                $backedModel = $model;
+            if ($model instanceof BackedModel && $model->getBackingStore()) {
 
-                $backingStore = $backedModel->getBackingStore();
-
-                if ($backingStore !== null) {
-                    $keys = $backingStore->enumerateKeysForValuesChangedToNull();
-
+                    $keys = $model->getBackingStore()->enumerateKeysForValuesChangedToNull();
                     foreach ($keys as $key) {
                         $serializationWriter->writeNullValue($key);
                     }
-                }
             }
         };
         parent::__construct($concreteSerializationWriterFactory, $onBeforeObjectSerialization,

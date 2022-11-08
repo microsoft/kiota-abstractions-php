@@ -18,7 +18,7 @@ interface BackingStore {
      * Will trigger subscription callbacks
      *
      * @param string $key The key to store and retrieve information.
-     * @param mixed|null $value The value to be $associated with the given key.
+     * @param mixed $value The value to be $associated with the given key.
      */
     public function set(string $key, $value): void;
 
@@ -37,7 +37,7 @@ interface BackingStore {
 
     /**
      * Creates a subscription to any data change happening.
-     * @param callable $callback Callback to be invoked on data changes where the first parameter is the data key, the second the previous value and the third the new value.
+     * @param callable(string $key, $prevValue, $newValue):void $callback Callback to be invoked on data changes where the first parameter is the data key, the second the previous value and the third the new value.
      * @param string|null $subscriptionId
      * @return string The subscription ID to use when removing the subscription
      */

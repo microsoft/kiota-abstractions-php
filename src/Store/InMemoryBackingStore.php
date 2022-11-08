@@ -8,21 +8,26 @@ class InMemoryBackingStore implements BackingStore
 {
 
     private bool $isInitializationCompleted = true;
-    private bool $returnOnlyChangedValues;
+    private bool $returnOnlyChangedValues = false;
 
     /**
-     * @var array<string,array|mixed|array<string,mixed>> $store;
+     * @var array<string,array> $store;
      */
     private array $store = [];
 
     /** @var array<string, callable> $subscriptionStore */
     private array $subscriptionStore = [];
+
     /**
      * @param string $key
      * @return mixed
      */
     public function get(string $key) {
-        $wrapper =  (array)($this->store[$key] ?? null);
+        $this->checkCollectionSizeChanged($key);
+        $wrapper =  $this->store[$key] ?? null;
+        if (is_null($wrapper)) {
+            return null;
+        }
         return $this->getValueFromWrapper($wrapper);
     }
 
@@ -32,26 +37,40 @@ class InMemoryBackingStore implements BackingStore
      */
     public function set(string $key, $value): void
     {
-        $valueToAdd = [$this->isInitializationCompleted, $value];
-        $this->store[$key] = $valueToAdd;
-        $oldValue = $this->store[$key];
+        $oldValue = $this->store[$key] ?? null;
+        $valueToAdd = is_array($value) ? [$this->isInitializationCompleted, $value, count($value)] : [$this->isInitializationCompleted, $value];
 
+        // Dirty track changes if $value is a model and its properties change
+        if (!array_key_exists($key, $this->store)) {
+            if ($value instanceof BackedModel) {
+                $value->getBackingStore()->subscribe(fn ($propertyKey, $oldVal, $newVal) => $this->set($key, $value));
+            }
+            if (is_array($value)) {
+                array_map(function ($item) use ($key, $value) {
+                    if ($item instanceof BackedModel) {
+                        $item->getBackingStore()->subscribe(fn ($propertyKey, $oldVal, $newVal) => $this->set($key, $value));
+                    }
+                }, $value);
+            }
+        }
+
+        $this->store[$key] = $valueToAdd;
         foreach ($this->subscriptionStore as $callback) {
-            $callback($key, $oldValue[1], $value);
+            $callback($key, $oldValue[1] ?? null, $value);
         }
     }
 
     /**
-     * @return array<string,mixed>
+     * Enumerate the values in the store based on $returnOnlyChangedValues
+     *
+     * @return array<string, mixed> key value pairs
      */
     public function enumerate(): array {
         $result = [];
 
         foreach ($this->store as $key => $value) {
-            $value = (array)$value;
-            $val = $this->getValueFromWrapper($value);
-
-            if ($val === null) {
+            $this->checkCollectionSizeChanged($key);
+            if (!$this->returnOnlyChangedValues || $value[0]) {
                 $result[$key] = $value[1];
             }
         }
@@ -59,6 +78,8 @@ class InMemoryBackingStore implements BackingStore
     }
 
     /**
+     * Adds a callback to subscribe to events in the store
+     *
      * @param callable $callback
      * @param string|null $subscriptionId
      * @return string
@@ -72,6 +93,8 @@ class InMemoryBackingStore implements BackingStore
     }
 
     /**
+     * De-register the callback with the given subscriptionId
+     *
      * @param string $subscriptionId
      */
     public function unsubscribe(string $subscriptionId): void {
@@ -79,7 +102,7 @@ class InMemoryBackingStore implements BackingStore
     }
 
     /**
-     *
+     * Empties the store
      */
     public function clear(): void {
         $this->store = [];
@@ -114,13 +137,15 @@ class InMemoryBackingStore implements BackingStore
     }
 
     /**
+     * Returns a list of keys in the store that have changed to null
+     *
      * @return iterable<string>
      */
     public function enumerateKeysForValuesChangedToNull(): iterable {
         $result = [];
 
         foreach ($this->store as $key => $val) {
-            if (is_array($val) && $val[1] === null && $val[0]) {
+            if ($val[1] === null && $val[0]) {
                 $result []= $key;
             }
         }
@@ -128,17 +153,31 @@ class InMemoryBackingStore implements BackingStore
     }
 
     /**
-     * @param array<mixed>|null $wrapper
-     * @return mixed|null
+     * Returns value from $wrapper based on $returnOnlyChangedValues configuration
+     *
+     * @param array $wrapper
+     * @return mixed
      */
-    public function getValueFromWrapper(?array $wrapper) {
-        if (!is_array($wrapper)) {
-            return null;
-        }
+    private function getValueFromWrapper(array $wrapper) {
         $hasChangedValue = $wrapper[0];
         if (!$this->returnOnlyChangedValues || $hasChangedValue) {
             return $wrapper[1];
         }
         return null;
+    }
+
+    /**
+     * Checks if collection of values has changed in size. If so, dirty tracks the change by calling set()
+     *
+     * @param string $key
+     * @return void
+     */
+    private function checkCollectionSizeChanged(string $key): void {
+        $wrapper = $this->store[$key] ?? null;
+        if ($wrapper && is_array($wrapper[1])) {
+            if (sizeof($wrapper[1]) != $wrapper[2]) {
+                $this->set($key, $wrapper[1]);
+            }
+        }
     }
 }

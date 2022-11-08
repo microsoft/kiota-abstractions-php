@@ -12,6 +12,15 @@ abstract class BackingStoreFactorySingleton
     private static ?BackingStoreFactory $instance = null;
 
     /**
+     * One time initialisation of the backing store factory
+     *
+     * @param BackingStoreFactory $instance
+     */
+    public static function setInstance(BackingStoreFactory $backingStoreFactory): void {
+        self::$instance = self::$instance ?? $backingStoreFactory;
+    }
+
+    /**
      * We use the getter method since PHP doesn't support instantiating an instance
      * outside a method.
      * @return BackingStoreFactory|null
