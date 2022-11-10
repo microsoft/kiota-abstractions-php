@@ -11,7 +11,7 @@ class InMemoryBackingStore implements BackingStore
     private bool $returnOnlyChangedValues = false;
 
     /**
-     * @var array<string,array> $store;
+     * @var array<string, array<mixed>> $store
      */
     private array $store = [];
 
@@ -42,12 +42,12 @@ class InMemoryBackingStore implements BackingStore
 
         // Dirty track changes if $value is a model and its properties change
         if (!array_key_exists($key, $this->store)) {
-            if ($value instanceof BackedModel) {
+            if ($value instanceof BackedModel && $value->getBackingStore()) {
                 $value->getBackingStore()->subscribe(fn ($propertyKey, $oldVal, $newVal) => $this->set($key, $value));
             }
             if (is_array($value)) {
                 array_map(function ($item) use ($key, $value) {
-                    if ($item instanceof BackedModel) {
+                    if ($item instanceof BackedModel && $item->getBackingStore()) {
                         $item->getBackingStore()->subscribe(fn ($propertyKey, $oldVal, $newVal) => $this->set($key, $value));
                     }
                 }, $value);
@@ -155,7 +155,7 @@ class InMemoryBackingStore implements BackingStore
     /**
      * Returns value from $wrapper based on $returnOnlyChangedValues configuration
      *
-     * @param array $wrapper
+     * @param array<mixed> $wrapper
      * @return mixed
      */
     private function getValueFromWrapper(array $wrapper) {

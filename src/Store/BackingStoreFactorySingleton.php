@@ -14,7 +14,7 @@ abstract class BackingStoreFactorySingleton
     /**
      * One time initialisation of the backing store factory
      *
-     * @param BackingStoreFactory $instance
+     * @param BackingStoreFactory $backingStoreFactory
      */
     public static function setInstance(BackingStoreFactory $backingStoreFactory): void {
         self::$instance = self::$instance ?? $backingStoreFactory;
