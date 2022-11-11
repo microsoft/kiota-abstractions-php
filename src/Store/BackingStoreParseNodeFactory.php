@@ -16,24 +16,14 @@ class BackingStoreParseNodeFactory extends ParseNodeProxyFactory{
     public function __construct(ParseNodeFactory $concrete) {
         parent::__construct($concrete,
            static function ($x) {
-             if (is_a($x, BackedModel::class)) {
-                 $backedModel = $x;
-                 $backingStore = $backedModel->getBackingStore();
-
-                 if (!is_null($backingStore)) {
-                     $backingStore->setIsInitializationCompleted(false);
-                 }
-             }
+                if ($x instanceof BackedModel && $x->getBackingStore()) {
+                    $x->getBackingStore()->setIsInitializationCompleted(false);
+                }
            },
            static function ($x) {
-               if (is_a($x, BackedModel::class)) {
-                   $backedModel = $x;
-                   $backingStore = $backedModel->getBackingStore();
-
-                   if (!is_null($backingStore)) {
-                       $backingStore->setIsInitializationCompleted(true);
-                   }
-               }
+                if ($x instanceof BackedModel && $x->getBackingStore()) {
+                    $x->getBackingStore()->setIsInitializationCompleted(true);
+                }
            }
         );
     }
