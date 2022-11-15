@@ -53,8 +53,8 @@ abstract class SerializationWriterProxyFactory implements SerializationWriterFac
         $originalStart = $writer->getOnStartObjectSerialization();
 
         $writer->setOnBeforeObjectSerialization(function (Parsable $model) use ($originalBefore) {
-            if ($this->onBeforeObjectSerialization !== null) {
-                $this->onBeforeObjectSerialization($model);  // the callback set by the implementation (e.g. backing store)
+            if ($this->getOnBeforeObjectSerialization() !== null) {
+                $this->getOnBeforeObjectSerialization()($model);  // the callback set by the implementation (e.g. backing store)
             }
 
             if ($originalBefore !== null) {
@@ -63,8 +63,8 @@ abstract class SerializationWriterProxyFactory implements SerializationWriterFac
         });
         $writer->setOnAfterObjectSerialization(function (Parsable $model) use ($originalAfter) {
 
-            if ($this->onAfterObjectSerialization !== null) {
-                $this->onAfterObjectSerialization($model);
+            if ($this->getOnAfterObjectSerialization() !== null) {
+                $this->getOnAfterObjectSerialization()($model);
             }
 
             if ($originalAfter !== null) {
@@ -73,8 +73,8 @@ abstract class SerializationWriterProxyFactory implements SerializationWriterFac
         });
 
         $writer->setOnStartObjectSerialization(function (Parsable $model, SerializationWriter $serializationWriter) use ($originalStart) {
-            if ($this->onStartObjectSerialization !== null) {
-                $this->onStartObjectSerialization($model, $serializationWriter);
+            if ($this->getOnStartObjectSerialization() !== null) {
+                $this->getOnStartObjectSerialization()($model, $serializationWriter);
             }
 
             if ($originalStart !== null) {
@@ -86,5 +86,17 @@ abstract class SerializationWriterProxyFactory implements SerializationWriterFac
 
     public function getValidContentType(): string {
         return $this->concrete->getValidContentType();
+    }
+
+    private function getOnBeforeObjectSerialization(): ?callable {
+        return $this->onBeforeObjectSerialization;
+    }
+
+    private function getOnAfterObjectSerialization(): ?callable {
+        return $this->onAfterObjectSerialization;
+    }
+
+    private function getOnStartObjectSerialization(): ?callable {
+        return $this->onStartObjectSerialization;
     }
 }
