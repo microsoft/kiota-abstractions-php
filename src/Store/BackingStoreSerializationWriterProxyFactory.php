@@ -16,22 +16,21 @@ class BackingStoreSerializationWriterProxyFactory extends SerializationWriterPro
      * @param SerializationWriterFactory $concreteSerializationWriterFactory a concrete implementation of SerializationWriterFactory to wrap.
      */
     public function __construct(SerializationWriterFactory $concreteSerializationWriterFactory){
-        $onBeforeObjectSerialization = static function (Parsable $model) {
+        $onBeforeObjectSerialization = function (Parsable $model) {
             if ($model instanceof BackedModel && $model->getBackingStore()) {
                 $model->getBackingStore()->setReturnOnlyChangedValues(true);
             }
         };
 
-        $onAfterObjectSerialization = static function (Parsable $model) {
+        $onAfterObjectSerialization = function (Parsable $model) {
             if ($model instanceof BackedModel && $model->getBackingStore()) {
                 $model->getBackingStore()->setReturnOnlyChangedValues(false);
                 $model->getBackingStore()->setIsInitializationCompleted(true);
             }
         };
 
-        $onStartObjectSerialization = static function (Parsable $model, SerializationWriter $serializationWriter) {
+        $onStartObjectSerialization = function (Parsable $model, SerializationWriter $serializationWriter) {
             if ($model instanceof BackedModel && $model->getBackingStore()) {
-
                     $keys = $model->getBackingStore()->enumerateKeysForValuesChangedToNull();
                     foreach ($keys as $key) {
                         $serializationWriter->writeNullValue($key);

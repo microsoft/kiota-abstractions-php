@@ -47,16 +47,16 @@ abstract class ParseNodeProxyFactory implements ParseNodeFactory {
         $originalAfter  = $node->getOnAfterAssignFieldValues();
 
         $node->setOnBeforeAssignFieldValues(function (Parsable $model) use ($originalBefore) {
-            if (!is_null($this->onBeforeAssignFieldValues)) {
-                $this->onBeforeAssignFieldValues($model);
+            if (!is_null($this->getOnBeforeAssignFieldValues())) {
+                $this->getOnBeforeAssignFieldValues()($model);
             }
             if (!is_null($originalBefore)) {
                 $originalBefore($model);
             }
         });
         $node->setOnAfterAssignFieldValues(function (Parsable $model) use ($originalAfter) {
-            if (!is_null($this->onAfterAssignFieldValues)) {
-                $this->onAfterAssignFieldValues($model);
+            if (!is_null($this->getOnAfterAssignFieldValues())) {
+                $this->getOnAfterAssignFieldValues()($model);
             }
             if (!is_null($originalAfter)) {
                 $originalAfter($model);
@@ -67,5 +67,13 @@ abstract class ParseNodeProxyFactory implements ParseNodeFactory {
 
     public function getValidContentType(): string {
         return $this->concreteParseNodeFactory->getValidContentType();
+    }
+
+    private function getOnBeforeAssignFieldValues(): ?callable {
+        return $this->onBeforeAssignFieldValues;
+    }
+
+    private function getOnAfterAssignFieldValues(): ?callable {
+        return $this->onAfterAssignFieldValues;
     }
 }
