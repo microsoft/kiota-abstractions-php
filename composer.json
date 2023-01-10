@@ -27,7 +27,7 @@
 		"php-http/promise": "^1.1.0",
 		"php-http/message-factory": "^1.0.2",
 		"league/uri": "^6.5",
-		"doctrine/annotations": "^1.13",
+		"doctrine/annotations": "^2.0",
 		"ramsey/uuid": "^3 || ^4"
 	},
     "require-dev": {
