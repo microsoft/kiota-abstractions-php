@@ -86,4 +86,12 @@ interface RequestAdapter {
      * @return string The base url for every request.
      */
     public function getBaseUrl(): string;
+
+    /**
+     * Converts RequestInformation object to an authenticated(containing auth header) PSR-7 Request Object.
+     *
+     * @param RequestInformation $requestInformation
+     * @return Promise
+     */
+    public function convertToNative(RequestInformation $requestInformation): Promise;
 }

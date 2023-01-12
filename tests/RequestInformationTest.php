@@ -111,6 +111,7 @@ class RequestInformationTest extends TestCase {
 
 class TestQueryParameter {
     /**
+     * @var string[]|null
      * @QueryParameter("%24select")
      */
     public ?array $select = null;

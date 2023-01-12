@@ -47,7 +47,6 @@ class RequestInformation {
     public function __construct()
     {
         // Init annotation utils
-        AnnotationRegistry::registerLoader('class_exists');
         self::$annotationReader = new AnnotationReader();
     }
 
