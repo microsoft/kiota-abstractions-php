@@ -262,7 +262,8 @@ class RequestInformation {
      * Get the headers and update if we already have some headers.
      * @return RequestHeaders
      */
-    public function getHeaders(): RequestHeaders {
+    public function getHeaders(): RequestHeaders
+    {
         return $this->headers;
     }
 }

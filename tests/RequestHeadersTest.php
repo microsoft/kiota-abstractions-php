@@ -7,24 +7,26 @@ use PHPUnit\Framework\TestCase;
 
 class RequestHeadersTest extends TestCase
 {
+    private const APPLICATION_JSON = 'application/json';
+    private const APPLICATION_XML = 'application/xml';
     public function testCanGetValues(): void
     {
         $rq = new RequestHeaders();
-        $rq->add('Content-Type', 'application/json');
-        $this->assertEquals(['application/json'], $rq->get('Content-Type'));
+        $rq->add('Content-Type', self::APPLICATION_JSON);
+        $this->assertEquals([self::APPLICATION_JSON], $rq->get('Content-Type'));
     }
 
     public function testGetAll(): void
     {
         $requestHeaders = new RequestHeaders();
-        $requestHeaders->addAll('Content-Type', ['application/json', 'application/xml']);
+        $requestHeaders->addAll('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
         $this->assertCount(2, $requestHeaders->get('Content-Type'));
     }
 
     public function testCanClear(): void
     {
         $requestHeaders = new RequestHeaders();
-        $requestHeaders->addAll('Content-Type', ['application/json', 'application/xmlt']);
+        $requestHeaders->addAll('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
         $requestHeaders->clear();
         $this->assertEquals(0, $requestHeaders->count());
         $requestHeaders->add('User-Agent', 'MyUserAgent');
@@ -34,7 +36,7 @@ class RequestHeadersTest extends TestCase
     public function testGetHeaderNames(): void
     {
         $headers = new RequestHeaders();
-        $headers->add('Content-Type', 'application/json');
+        $headers->add('Content-Type', self::APPLICATION_JSON);
         $headers->add('User-Agent', 'Browser');
         $expected = array_map('strtolower',['Content-Type', 'User-Agent']);
         $this->assertEquals($expected, $headers->getHeaderNames());
@@ -44,7 +46,7 @@ class RequestHeadersTest extends TestCase
     {
         $headers = RequestHeaders::from(
             [
-                'Content-Type' => ['application/json', 'application/xmlr'],
+                'Content-Type' => [self::APPLICATION_JSON, self::APPLICATION_XML],
                 'User-Agent' => ['Moz']
             ]
         );
