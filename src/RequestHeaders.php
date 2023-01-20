@@ -105,12 +105,24 @@ class RequestHeaders implements \Countable
     }
 
     /**
-     * Add all the values to the specific header.
-     * @param string $key
-     * @param array<string> $values
+     * Merge all the values to the existing headers.
+     * @param array<string, array<string>> $headers
      * @return void
      */
-    public function addAll(string $key, array $values): void
+    public function putAll(array $headers): void
+    {
+        foreach ($headers as $key => $headerValue) {
+            $this->putAllToKey($key, $headerValue);
+        }
+    }
+
+    /**
+     * Add all values to a specific header.
+     * @param string $key
+     * @param string[] $values
+     * @return void
+     */
+    public function putAllToKey(string $key, array $values): void
     {
         foreach ($values as $value) {
             $this->add($key, $value);
@@ -125,19 +137,5 @@ class RequestHeaders implements \Countable
     public function contains(string $key): bool
     {
         return array_key_exists($this->normalize($key), $this->headers);
-    }
-
-    /**
-     * Create a new RequestHeaders object from array of headers.
-     * @param array<string,array<string>> $values
-     * @return self
-     */
-    public static function from(array $values): self
-    {
-        $headers = new self;
-        foreach ($values as $key => $value) {
-            $headers->addAll($key, $value);
-        }
-        return $headers;
     }
 }

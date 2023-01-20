@@ -19,7 +19,7 @@ class RequestHeadersTest extends TestCase
     public function testGetAll(): void
     {
         $requestHeaders = new RequestHeaders();
-        $requestHeaders->addAll('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
+        $requestHeaders->putAllToKey('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
         $this->assertCount(2, $requestHeaders->get('Content-Type'));
         $this->assertCount(1, $requestHeaders->getAll());
     }
@@ -27,7 +27,7 @@ class RequestHeadersTest extends TestCase
     public function testCanClear(): void
     {
         $requestHeaders = new RequestHeaders();
-        $requestHeaders->addAll('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
+        $requestHeaders->putAllToKey('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
         $requestHeaders->clear();
         $this->assertEquals(0, $requestHeaders->count());
         $requestHeaders->add('User-Agent', 'MyUserAgent');
@@ -45,7 +45,8 @@ class RequestHeadersTest extends TestCase
 
     public function testCanRemove(): void
     {
-        $headers = RequestHeaders::from(
+        $headers = new RequestHeaders();
+        $headers->putAll(
             [
                 'Content-Type' => [self::APPLICATION_JSON, self::APPLICATION_XML],
                 'User-Agent' => ['Moz']
