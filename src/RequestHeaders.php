@@ -12,7 +12,7 @@ class RequestHeaders implements \Countable
      * Get all headers and values stored so far.
      * @return array<string, array<string>>
      */
-    public function values(): array
+    public function getAll(): array
     {
         $result = [];
         foreach ($this->headers as $key => $value) {
@@ -75,15 +75,6 @@ class RequestHeaders implements \Countable
     public function getHeaderNames(): array
     {
         return array_keys($this->headers);
-    }
-
-    /**
-     * Gets all the headers.
-     * @return array<string,string[]>
-     */
-    public function getAll(): array
-    {
-        return $this->values();
     }
 
     /**
