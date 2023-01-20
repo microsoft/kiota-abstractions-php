@@ -39,7 +39,7 @@ class RequestHeadersTest extends TestCase
         $headers = new RequestHeaders();
         $headers->add('Content-Type', self::APPLICATION_JSON);
         $headers->add('User-Agent', 'Browser');
-        $expected = array_map('strtolower',['Content-Type', 'User-Agent']);
+        $expected = array_map('strtolower', ['Content-Type', 'User-Agent']);
         $this->assertEquals($expected, $headers->getHeaderNames());
     }
 
