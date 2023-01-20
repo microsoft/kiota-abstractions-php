@@ -4,7 +4,6 @@ namespace Microsoft\Kiota\Abstractions;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Exception;
 use InvalidArgumentException;
 use League\Uri\Contracts\UriException;
@@ -32,8 +31,8 @@ class RequestInformation {
     public string $httpMethod;
     /** @var array<string,mixed> The Query Parameters of the request. */
     public array $queryParameters = [];
-    /** @var array<string, mixed>  The Request Headers. */
-    public array $headers = [];
+    /** @var RequestHeaders  The Request Headers. */
+    public RequestHeaders $headers;
     /** @var StreamInterface|null $content The Request Body. */
     public ?StreamInterface $content = null;
     /** @var array<string,RequestOption> */
@@ -46,6 +45,7 @@ class RequestInformation {
 
     public function __construct()
     {
+        $this->headers = new RequestHeaders();
         // Init annotation utils
         self::$annotationReader = new AnnotationReader();
     }
@@ -141,7 +141,7 @@ class RequestInformation {
      */
     public function setStreamContent(StreamInterface $value): void {
         $this->content = $value;
-        $this->headers[self::$contentTypeHeader] = self::$binaryContentType;
+        $this->headers->add(self::$contentTypeHeader, self::$binaryContentType);
     }
 
     /**
@@ -155,7 +155,7 @@ class RequestInformation {
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeObjectValue(null, $value);
-            $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
@@ -175,7 +175,7 @@ class RequestInformation {
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeCollectionOfObjectValues(null, $values);
-            $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
@@ -194,7 +194,7 @@ class RequestInformation {
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeAnyValue(null, $value);
-            $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
@@ -213,7 +213,7 @@ class RequestInformation {
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeCollectionOfPrimitiveValues(null, $values);
-            $this->headers[self::$contentTypeHeader] = $contentType;
+            $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
@@ -253,14 +253,16 @@ class RequestInformation {
      * @param array<string, mixed> $headers
      */
     public function setHeaders(array $headers): void {
-        $this->headers = array_merge($this->headers, $headers);
+        foreach ($headers as $key => $headerValue) {
+            $this->headers->add($key, strval($headerValue));
+        }
     }
 
     /**
      * Get the headers and update if we already have some headers.
-     * @return array<string, mixed>
+     * @return RequestHeaders
      */
-    public function getHeaders(): array {
+    public function getHeaders(): RequestHeaders {
         return $this->headers;
     }
 }

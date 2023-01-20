@@ -4,6 +4,7 @@ namespace Microsoft\Kiota\Abstractions\Authentication;
 
 use Http\Promise\FulfilledPromise;
 use Http\Promise\Promise;
+use League\Uri\Contracts\UriException;
 use Microsoft\Kiota\Abstractions\RequestInformation;
 
 /**
@@ -50,13 +51,14 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
     /**
      * @param RequestInformation $request
      * @return Promise
+     * @throws UriException
      */
     public function authenticateRequest(RequestInformation $request): Promise {
-        if (!array_key_exists(self::$authorizationHeaderKey, $request->headers)) {
+        if ($request->headers->contains(self::$authorizationHeaderKey)) {
             return $this->getAccessTokenProvider()->getAuthorizationTokenAsync($request->getUri())
                         ->then(function ($token) use($request) {
                             if ($token) {
-                                $request->headers[self::$authorizationHeaderKey] = "Bearer {$token}";
+                                $request->headers->add(self::$authorizationHeaderKey, "Bearer {$token}");
                             }
                             return null;
                         });
