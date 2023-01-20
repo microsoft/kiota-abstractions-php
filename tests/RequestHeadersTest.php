@@ -21,6 +21,7 @@ class RequestHeadersTest extends TestCase
         $requestHeaders = new RequestHeaders();
         $requestHeaders->addAll('Content-Type', [self::APPLICATION_JSON, self::APPLICATION_XML]);
         $this->assertCount(2, $requestHeaders->get('Content-Type'));
+        $this->assertCount(1, $requestHeaders->getAll());
     }
 
     public function testCanClear(): void
@@ -56,5 +57,13 @@ class RequestHeadersTest extends TestCase
         $this->assertEquals(1, $headers->count());
         $this->assertCount(2, $headers->get('Content-Type'));
         $this->assertCount(0, $headers->get('User-Agent'));
+    }
+
+    public function testContains(): void
+    {
+        $headers = new RequestHeaders();
+        $this->assertFalse($headers->contains('User-Agent'));
+        $headers->add('User-Agent', 'Mozilla');
+        $this->assertTrue($headers->contains('User-Agent'));
     }
 }
