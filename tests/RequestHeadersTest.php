@@ -7,28 +7,32 @@ use PHPUnit\Framework\TestCase;
 
 class RequestHeadersTest extends TestCase
 {
-    public function testCanGetValues(): void {
+    public function testCanGetValues(): void
+    {
         $rq = new RequestHeaders();
         $rq->add('Content-Type', 'application/json');
         $this->assertEquals(['application/json'], $rq->get('Content-Type'));
     }
 
-    public function testGetAll(): void {
+    public function testGetAll(): void
+    {
         $requestHeaders = new RequestHeaders();
         $requestHeaders->addAll('Content-Type', ['application/json', 'application/xml']);
         $this->assertCount(2, $requestHeaders->get('Content-Type'));
     }
 
-    public function testCanClear(): void {
+    public function testCanClear(): void
+    {
         $requestHeaders = new RequestHeaders();
-        $requestHeaders->addAll('Content-Type', ['application/json', 'application/xml']);
+        $requestHeaders->addAll('Content-Type', ['application/json', 'application/xmlt']);
         $requestHeaders->clear();
         $this->assertEquals(0, $requestHeaders->count());
         $requestHeaders->add('User-Agent', 'MyUserAgent');
         $this->assertCount(1, $requestHeaders->get('User-Agent'));
     }
 
-    public function testGetHeaderNames(): void {
+    public function testGetHeaderNames(): void
+    {
         $headers = new RequestHeaders();
         $headers->add('Content-Type', 'application/json');
         $headers->add('User-Agent', 'Browser');
@@ -36,10 +40,11 @@ class RequestHeadersTest extends TestCase
         $this->assertEquals($expected, $headers->getHeaderNames());
     }
 
-    public function testCanRemove(): void {
+    public function testCanRemove(): void
+    {
         $headers = RequestHeaders::from(
             [
-                'Content-Type' => ['application/json', 'application/xml'],
+                'Content-Type' => ['application/json', 'application/xmlr'],
                 'User-Agent' => ['Moz']
             ]
         );

@@ -12,7 +12,8 @@ class RequestHeaders implements \Countable
      * Get all headers and values stored so far.
      * @return array<string, array<string>>
      */
-    public function values(): array {
+    public function values(): array
+    {
         $result = [];
         foreach ($this->headers as $key => $value) {
             $result[$key] = array_keys($value);
@@ -25,7 +26,8 @@ class RequestHeaders implements \Countable
      * @param string $key
      * @return array<string>
      */
-    public function get(string $key): array {
+    public function get(string $key): array
+    {
         return array_keys($this->headers[strtolower($key)] ?? []);
     }
 
@@ -50,7 +52,8 @@ class RequestHeaders implements \Countable
      * @param string $key
      * @return string
      */
-    private function normalize(string $key): string {
+    private function normalize(string $key): string
+    {
         return strtolower($key);
     }
 
@@ -60,7 +63,8 @@ class RequestHeaders implements \Countable
      * @param string $key
      * @return void
      */
-    public function remove(string $key): void {
+    public function remove(string $key): void
+    {
         unset($this->headers[$this->normalize($key)]);
     }
 
@@ -68,7 +72,8 @@ class RequestHeaders implements \Countable
      * Get the names of the current headers set.
      * @return string[]
      */
-    public function getHeaderNames(): array {
+    public function getHeaderNames(): array
+    {
         return array_keys($this->headers);
     }
 
@@ -76,7 +81,8 @@ class RequestHeaders implements \Countable
      * Gets all the headers.
      * @return array<string,string[]>
      */
-    public function getAll(): array {
+    public function getAll(): array
+    {
         return $this->values();
     }
 
@@ -84,7 +90,8 @@ class RequestHeaders implements \Countable
      * Counts and returns the count of the current headers.
      * @return int
      */
-    public function count(): int {
+    public function count(): int
+    {
         return count($this->headers);
     }
 
@@ -92,7 +99,8 @@ class RequestHeaders implements \Countable
      * Clears the current headers.
      * @return void
      */
-    public function clear(): void {
+    public function clear(): void
+    {
         $this->headers = [];
     }
 
@@ -102,7 +110,8 @@ class RequestHeaders implements \Countable
      * @param array<string> $values
      * @return void
      */
-    public function addAll(string $key, array $values): void {
+    public function addAll(string $key, array $values): void
+    {
         foreach ($values as $value) {
             $this->add($key, $value);
         }
@@ -113,7 +122,8 @@ class RequestHeaders implements \Countable
      * @param string $key
      * @return bool
      */
-    public function contains(string $key): bool {
+    public function contains(string $key): bool
+    {
         return array_key_exists($this->normalize($key), $this->headers);
     }
 
@@ -122,7 +132,8 @@ class RequestHeaders implements \Countable
      * @param array<string,array<string>> $values
      * @return self
      */
-    public static function from(array $values): self {
+    public static function from(array $values): self
+    {
         $headers = new self;
         foreach ($values as $key => $value) {
             $headers->addAll($key, $value);
