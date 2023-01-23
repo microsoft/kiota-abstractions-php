@@ -2,7 +2,7 @@
 
 namespace Microsoft\Kiota\Abstractions;
 
-class RequestHeaders implements \Countable
+class RequestHeaders
 {
     /** Using array<string, bool> for faster checks since key checks
      * are faster than just looping to check if value exists.

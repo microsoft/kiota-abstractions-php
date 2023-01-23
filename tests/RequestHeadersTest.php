@@ -53,7 +53,7 @@ class RequestHeadersTest extends TestCase
             ]
         );
 
-        $this->assertCount(2, $headers);
+        $this->assertEquals(2, $headers->count());
         $headers->remove('User-Agent');
         $this->assertEquals(1, $headers->count());
         $this->assertCount(2, $headers->get('Content-Type'));
