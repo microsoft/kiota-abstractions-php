@@ -32,7 +32,7 @@ class RequestInformation {
     /** @var array<string,mixed> The Query Parameters of the request. */
     public array $queryParameters = [];
     /** @var RequestHeaders  The Request Headers. */
-    public RequestHeaders $headers;
+    private RequestHeaders $headers;
     /** @var StreamInterface|null $content The Request Body. */
     public ?StreamInterface $content = null;
     /** @var array<string,RequestOption> */
@@ -250,11 +250,16 @@ class RequestInformation {
 
     /**
      * Set the headers and update if we already have some headers.
-     * @param array<string, mixed> $headers
+     * @param array<string, array<string>|string> $headers
      */
-    public function setHeaders(array $headers): void {
+    public function addHeaders(array $headers): void
+    {
         foreach ($headers as $key => $headerValue) {
-            $this->headers->add($key, strval($headerValue));
+            if (is_array($headerValue)) {
+                $this->headers->putAllToKey($key, $headerValue);
+            } else{
+                $this->headers->add($key, strval($headerValue));
+            }
         }
     }
 
@@ -265,5 +270,36 @@ class RequestInformation {
     public function getHeaders(): RequestHeaders
     {
         return $this->headers;
+    }
+
+    /**
+     * @param array<string,array<string>|string> $headers
+     * @return void
+     */
+    public function setHeaders(array $headers): void
+    {
+        $this->headers->clear();
+        $this->addHeaders($headers);
+    }
+
+    /**
+     * Removes header with key from the request headers.
+     * @param string $key
+     * @return void
+     */
+    public function removeHeader(string $key): void
+    {
+        $this->headers->remove($key);
+    }
+
+    /**
+     * Add value to header with specific key.
+     * @param string $key
+     * @param string $value
+     * @return void
+     */
+    public function addHeader(string $key, string $value): void
+    {
+        $this->headers->add($key, $value);
     }
 }
