@@ -11,7 +11,14 @@ use Http\Promise\Promise;
  */
 class NativeResponseHandler implements ResponseHandler
 {
-    public function handleResponseAsync(ResponseInterface $response): Promise
+    /**
+     * Returns a promise that resolves to the raw PSR-7 response
+     *
+     * @param ResponseInterface $response
+     * @param array<string, array{string, string}>|null $errorMappings
+     * @return Promise
+     */
+    public function handleResponseAsync(ResponseInterface $response, ?array $errorMappings = null): Promise
     {
         return new FulfilledPromise($response);
     }
