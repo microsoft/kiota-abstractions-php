@@ -11,7 +11,7 @@ class ParseNodeHelper
      */
     public static function mergeDeserializersForIntersectionWrapper(Parsable ...$targets): array
     {
-        if (count($targets) === 0) {
+        if (empty($targets)) {
             return [];
         }
         $result = $targets[0]->getFieldDeserializers();
