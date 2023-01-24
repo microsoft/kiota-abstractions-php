@@ -15,7 +15,7 @@ class NativeResponseHandler implements ResponseHandler
      * Returns a promise that resolves to the raw PSR-7 response
      *
      * @param ResponseInterface $response
-     * @param arrayarray<string, array{string, string}>|null $errorMappings
+     * @param array<string, array{string, string}>|null $errorMappings
      * @return Promise
      */
     public function handleResponseAsync(ResponseInterface $response, ?array $errorMappings = null): Promise
