@@ -23,9 +23,9 @@ abstract class BackingStoreFactorySingleton
     /**
      * We use the getter method since PHP doesn't support instantiating an instance
      * outside a method.
-     * @return BackingStoreFactory|null
+     * @return BackingStoreFactory
      */
-    public static function getInstance(): ?BackingStoreFactory {
+    public static function getInstance(): BackingStoreFactory {
         if (is_null(self::$instance)) {
             self::$instance = new InMemoryBackingStoreFactory();
         }
