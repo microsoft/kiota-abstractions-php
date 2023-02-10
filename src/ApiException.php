@@ -2,16 +2,15 @@
 
 namespace Microsoft\Kiota\Abstractions;
 use Exception;
-use Psr\Http\Message\ResponseInterface;
 
 class ApiException extends Exception
 {
     /**
-     * Raw response object
+     * HTTP response status code
      *
-     * @var ResponseInterface|null
+     * @var int|null
      */
-    private ?ResponseInterface $response = null;
+    private ?int $responseStatusCode = null;
 
     /**
      * @param string $message
@@ -23,23 +22,23 @@ class ApiException extends Exception
     }
 
     /**
-     * Set raw response from API
+     * Set HTTP response status code from API
      *
-     * @param ResponseInterface $response
+     * @param int $statusCode
      * @return void
      */
-    public function setResponse(ResponseInterface $response): void
+    public function setResponseStatusCode(int $statusCode): void
     {
-        $this->response = $response;
+        $this->responseStatusCode = $statusCode;
     }
 
     /**
-     * Return raw response from API
+     * Return HTTP response status code from API
      *
-     * @return ResponseInterface|null
+     * @return int|null
      */
-    public function getResponse(): ?ResponseInterface
+    public function getResponseStatusCode(): ?int
     {
-        return $this->response;
+        return $this->responseStatusCode;
     }
 }
