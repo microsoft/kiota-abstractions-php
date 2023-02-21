@@ -56,8 +56,9 @@ interface SerializationWriter {
      * Writes the specified model object value to the stream with an optional given key.
      * @param string|null $key the key to write the value with.
      * @param Parsable|null $value the value to write to the stream.
+     * @param Parsable ...$additionalValuesToMerge additional Parsable values to merge.
      */
-    public function writeObjectValue(?string $key, ?Parsable $value): void;
+    public function writeObjectValue(?string $key, ?Parsable $value, Parsable ...$additionalValuesToMerge): void;
 
     /**
      * Gets the value of the serialized content.
@@ -121,7 +122,7 @@ interface SerializationWriter {
      * @return void
      */
     public function writeCollectionOfPrimitiveValues(?string $key, ?array $value): void;
-    
+
     /**
     * Try to write a value with any type.
     * @param string|null $key The key for the value.
@@ -136,7 +137,7 @@ interface SerializationWriter {
      * @return void
      */
     public function writeBinaryContent(?string $key, ?StreamInterface $value): void;
-    
+
     /**
      * Sets the callback called before the objects gets serialized.
      * @param callable|null $value the callback called before the objects gets serialized.
