@@ -24,11 +24,13 @@ class RequestHeaders
     /**
      * Get values for a specific header with a specific key.
      * @param string $key
-     * @return array<string>
+     * @return array<string>|null
      */
-    public function get(string $key): array
+    public function get(string $key): ?array
     {
-        return array_keys($this->headers[strtolower($key)] ?? []);
+        $key = $this->normalize($key);
+        $keyExists = $this->headers[$key] ?? false;
+        return $keyExists ? array_keys($this->headers[$key]) : null;
     }
 
     /**
@@ -39,11 +41,14 @@ class RequestHeaders
      */
     public function add(string $key, string $value): void
     {
-        $lowercaseKey = strtolower($key);
-        if (array_key_exists($lowercaseKey, $this->headers)) {
-            $this->headers[$lowercaseKey][$value] = true;
+        $key = $this->normalize($key);
+        $value = $this->normalize($value);
+        if (array_key_exists($key, $this->headers)) {
+            if (!array_key_exists($value, $this->headers[$key])) {
+                $this->headers[$key][$value] = true;
+            }
         } else {
-            $this->headers[$lowercaseKey] = [$value => true];
+            $this->headers[$key] = [$value => true];
         }
     }
 
@@ -54,7 +59,7 @@ class RequestHeaders
      */
     private function normalize(string $key): string
     {
-        return strtolower($key);
+        return strtolower(trim($key));
     }
 
     /**
@@ -97,13 +102,17 @@ class RequestHeaders
 
     /**
      * Merge all the values to the existing headers.
-     * @param array<string, array<string>> $headers
+     * @param array<string, array<string>|string> $headers
      * @return void
      */
     public function putAll(array $headers): void
     {
         foreach ($headers as $key => $headerValue) {
-            $this->putAllToKey($key, $headerValue);
+            if (is_array($headerValue)) {
+                $this->putAllToKey($key, $headerValue);
+            } else{
+                $this->add($key, strval($headerValue));
+            }
         }
     }
 

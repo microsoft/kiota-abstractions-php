@@ -9,11 +9,17 @@ class RequestHeadersTest extends TestCase
 {
     private const APPLICATION_JSON = 'application/json';
     private const APPLICATION_XML = 'application/xml';
+
     public function testCanGetValues(): void
     {
         $rq = new RequestHeaders();
         $rq->add('Content-Type', self::APPLICATION_JSON);
         $this->assertEquals([self::APPLICATION_JSON], $rq->get('Content-Type'));
+    }
+
+    public function testGetNonExistentKey(): void
+    {
+        $this->assertNull((new RequestHeaders)->get("abc"));
     }
 
     public function testGetAll(): void
@@ -57,7 +63,7 @@ class RequestHeadersTest extends TestCase
         $headers->remove('User-Agent');
         $this->assertEquals(1, $headers->count());
         $this->assertCount(2, $headers->get('Content-Type'));
-        $this->assertCount(0, $headers->get('User-Agent'));
+        $this->assertNull($headers->get('User-Agent'));
     }
 
     public function testContains(): void
@@ -66,5 +72,31 @@ class RequestHeadersTest extends TestCase
         $this->assertFalse($headers->contains('User-Agent'));
         $headers->add('User-Agent', 'Mozilla');
         $this->assertTrue($headers->contains('User-Agent'));
+    }
+
+    public function testCanAdd(): void
+    {
+        $headers = new RequestHeaders();
+        $key = "key";
+        $headers->add($key, "value");
+        $this->assertEquals(["value"], $headers->get($key));
+
+        $headers->add($key, "value2");
+        $this->assertEquals(["value", "value2"], $headers->get($key));
+
+        // add duplicate
+        $headers->add($key, "VALUE2");
+        $this->assertEquals(["value", "value2"], $headers->get($key));
+    }
+
+    public function testCanPutAll(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->putAll([
+            "key1" => "value1",
+            "key2" => ["value2", "value3"]
+        ]);
+        $this->assertEquals(["value1"], $headers->get("key1"));
+        $this->assertEquals(["value2", "value3"], $headers->get("key2"));
     }
 }
