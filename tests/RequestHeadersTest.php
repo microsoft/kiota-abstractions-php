@@ -84,9 +84,9 @@ class RequestHeadersTest extends TestCase
         $headers->add($key, "value2");
         $this->assertEquals(["value", "value2"], $headers->get($key));
 
-        // add duplicate
+        // case sensitive
         $headers->add($key, "VALUE2");
-        $this->assertEquals(["value", "value2"], $headers->get($key));
+        $this->assertEquals(["value", "value2", "VALUE2"], $headers->get($key));
     }
 
     public function testCanPutAll(): void

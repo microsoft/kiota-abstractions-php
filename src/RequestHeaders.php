@@ -41,12 +41,11 @@ class RequestHeaders
      */
     public function add(string $key, string $value): void
     {
-        $key = $this->normalize($key);
-        $value = $this->normalize($value);
-        if (array_key_exists($key, $this->headers)) {
-            $this->headers[$key][$value] = true;
+        $lowercaseKey = strtolower($key);
+        if (array_key_exists($lowercaseKey, $this->headers)) {
+            $this->headers[$lowercaseKey][$value] = true;
         } else {
-            $this->headers[$key] = [$value => true];
+            $this->headers[$lowercaseKey] = [$value => true];
         }
     }
 
