@@ -44,9 +44,7 @@ class RequestHeaders
         $key = $this->normalize($key);
         $value = $this->normalize($value);
         if (array_key_exists($key, $this->headers)) {
-            if (!array_key_exists($value, $this->headers[$key])) {
-                $this->headers[$key][$value] = true;
-            }
+            $this->headers[$key][$value] = true;
         } else {
             $this->headers[$key] = [$value => true];
         }
@@ -110,7 +108,7 @@ class RequestHeaders
         foreach ($headers as $key => $headerValue) {
             if (is_array($headerValue)) {
                 $this->putAllToKey($key, $headerValue);
-            } else{
+            } else {
                 $this->add($key, strval($headerValue));
             }
         }
