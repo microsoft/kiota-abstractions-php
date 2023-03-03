@@ -254,13 +254,7 @@ class RequestInformation {
      */
     public function addHeaders(array $headers): void
     {
-        foreach ($headers as $key => $headerValue) {
-            if (is_array($headerValue)) {
-                $this->headers->putAllToKey($key, $headerValue);
-            } else{
-                $this->headers->add($key, strval($headerValue));
-            }
-        }
+        $this->headers->putAll($headers);
     }
 
     /**

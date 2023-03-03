@@ -24,11 +24,13 @@ class RequestHeaders
     /**
      * Get values for a specific header with a specific key.
      * @param string $key
-     * @return array<string>
+     * @return array<string>|null
      */
-    public function get(string $key): array
+    public function get(string $key): ?array
     {
-        return array_keys($this->headers[strtolower($key)] ?? []);
+        $key = $this->normalize($key);
+        $keyExists = $this->headers[$key] ?? false;
+        return $keyExists ? array_keys($this->headers[$key]) : null;
     }
 
     /**
@@ -54,7 +56,7 @@ class RequestHeaders
      */
     private function normalize(string $key): string
     {
-        return strtolower($key);
+        return strtolower(trim($key));
     }
 
     /**
@@ -97,13 +99,17 @@ class RequestHeaders
 
     /**
      * Merge all the values to the existing headers.
-     * @param array<string, array<string>> $headers
+     * @param array<string, array<string>|string> $headers
      * @return void
      */
     public function putAll(array $headers): void
     {
         foreach ($headers as $key => $headerValue) {
-            $this->putAllToKey($key, $headerValue);
+            if (is_array($headerValue)) {
+                $this->putAllToKey($key, $headerValue);
+            } else {
+                $this->add($key, strval($headerValue));
+            }
         }
     }
 
