@@ -24,13 +24,11 @@ class RequestHeaders
     /**
      * Get values for a specific header with a specific key.
      * @param string $key
-     * @return array<string>|null
+     * @return array<string>
      */
-    public function get(string $key): ?array
+    public function get(string $key): array
     {
-        $key = $this->normalize($key);
-        $keyExists = $this->headers[$key] ?? false;
-        return $keyExists ? array_keys($this->headers[$key]) : null;
+        return array_keys($this->headers[$this->normalize($key)] ?? []);
     }
 
     /**
