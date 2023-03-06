@@ -10,6 +10,18 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <file>./src/RequestOption.php</file>
+            <file>./src/ResponseHandler.php</file>
+            <file>./src/RequestAdapter.php</file>
+            <file>./src/serialization/AdditionalDataHolder.php</file>
+            <file>./src/serialization/Parsable.php</file>
+            <file>./src/serialization/ParsableFactory.php</file>
+            <file>./src/serialization/ParseNode.php</file>
+            <file>src/serialization/ParseNodeFactory.php</file>
+            <file>./src/serialization/SerializationWriter.php</file>
+            <file>./src/serialization/SerializationWriterFactory.php</file>
+        </exclude>
         <report>
             <html outputDirectory="coverage"/>
         </report>
