@@ -19,7 +19,7 @@ class RequestHeadersTest extends TestCase
 
     public function testGetNonExistentKey(): void
     {
-        $this->assertNull((new RequestHeaders)->get("abc"));
+        $this->assertEmpty((new RequestHeaders)->get("abc"));
     }
 
     public function testGetAll(): void
@@ -63,7 +63,7 @@ class RequestHeadersTest extends TestCase
         $headers->remove('User-Agent');
         $this->assertEquals(1, $headers->count());
         $this->assertCount(2, $headers->get('Content-Type'));
-        $this->assertNull($headers->get('User-Agent'));
+        $this->assertEmpty($headers->get('User-Agent'));
     }
 
     public function testContains(): void
