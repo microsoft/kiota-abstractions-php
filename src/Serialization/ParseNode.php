@@ -43,14 +43,16 @@ interface ParseNode {
 
     /**
      * Gets the model object value of the node.
-     * @param array{string,string} $type The type for the Parsable object.
-     * @return Parsable|null the model object value of the node.
+     * @template T of Parsable
+     * @param array{class-string<T>,string} $type The type for the Parsable object.
+     * @return T|null the model object value of the node.
      */
     public function getObjectValue(array $type): ?Parsable;
 
     /**
-     * @param array{string,string} $type The underlying type for the Parsable class.
-     * @return array<Parsable>|null An array of Parsable values.
+     * @template T of Parsable
+     * @param array{class-string<T>,string} $type The underlying type for the Parsable class.
+     * @return array<T>|null An array of Parsable values.
      */
     public function getCollectionOfObjectValues(array $type): ?array;
 
@@ -87,14 +89,16 @@ interface ParseNode {
 
     /**
      * Gets the Enum value of the node.
-     * @param string $targetEnum
-     * @return Enum|null the Enum value of the node.
+     * @template T of Enum
+     * @param class-string<T> $targetEnum
+     * @return T|null the Enum value of the node.
      */
     public function getEnumValue(string $targetEnum): ?Enum;
 
     /**
-     * @param string $targetClass
-     * @return Enum[]|null
+     * @template T of Enum
+     * @param class-string<T> $targetClass
+     * @return array<T>|null
      */
     public function getCollectionOfEnumValues(string $targetClass): ?array;
 
