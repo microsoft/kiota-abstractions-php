@@ -5,9 +5,8 @@ namespace Microsoft\Kiota\Abstractions\Tests\TestFiles;
 use Microsoft\Kiota\Abstractions\BaseRequestBuilder;
 use Microsoft\Kiota\Abstractions\RequestAdapter;
 
-class RequestBuilderTestClass
+class RequestBuilderTestClass extends BaseRequestBuilder
 {
-    use BaseRequestBuilder;
 
     /**
      * @param RequestAdapter $requestAdapter

@@ -2,10 +2,20 @@
 
 namespace Microsoft\Kiota\Abstractions;
 
-trait BaseRequestConfiguration
+abstract class BaseRequestConfiguration
 {
     /** @var array<string,array<string>|string> $headers */
     protected array $headers = [];
     /** @var array<RequestOption> $options */
     protected array $options = [];
+
+    /**
+     * @param array<string,string|array<string>> $headers
+     * @param array<RequestOption> $options
+     */
+    public function __construct(array $headers, array $options)
+    {
+        $this->options = $options;
+        $this->headers = $headers;
+    }
 }
