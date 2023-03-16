@@ -17,8 +17,8 @@ abstract class BaseRequestBuilder
     public function __construct(
         RequestAdapter $requestAdapter,
         array $pathParameters,
-        string $urlTemplate = '')
-    {
+        string $urlTemplate = ''
+    ) {
         $this->requestAdapter = $requestAdapter;
         $this->pathParameters = $pathParameters;
         $this->urlTemplate = $urlTemplate;
