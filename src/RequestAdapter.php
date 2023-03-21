@@ -13,7 +13,7 @@ interface RequestAdapter {
      * Executes the HTTP request specified by the given RequestInformation and returns the deserialized response model.
      * @template T of Parsable
      * @param RequestInformation $requestInfo the request info to execute.
-     * @param array{class-string<T>,string} $targetCallable the class of the response model to deserialize the response into.
+     * @param array{class-string<T>,string} $targetCallable the model to deserialize the response into.
      * @param array<string, array{class-string<T>, string}>|null $errorMappings
      * @return Promise with the deserialized response model.
      */
