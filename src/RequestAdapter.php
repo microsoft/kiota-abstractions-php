@@ -5,14 +5,16 @@ use Http\Promise\Promise;
 use Microsoft\Kiota\Abstractions\Serialization\ParseNodeFactory;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriterFactory;
 use Microsoft\Kiota\Abstractions\Store\BackingStoreFactory;
+use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 
 /** Service responsible for translating abstract Request Info into concrete native HTTP requests. */
 interface RequestAdapter {
     /**
      * Executes the HTTP request specified by the given RequestInformation and returns the deserialized response model.
+     * @template T of Parsable
      * @param RequestInformation $requestInfo the request info to execute.
-     * @param array{string, string} $targetCallable the class of the response model to deserialize the response into.
-     * @param array<string, array{string, string}>|null $errorMappings
+     * @param array{class-string<T>,string} $targetCallable the model to deserialize the response into.
+     * @param array<string, array{class-string<T>, string}>|null $errorMappings
      * @return Promise with the deserialized response model.
      */
     public function sendAsync(
@@ -36,9 +38,10 @@ interface RequestAdapter {
 
     /**
      * Executes the HTTP request specified by the given RequestInformation and returns the deserialized response model collection.
+     * @template T of Parsable
      * @param RequestInformation $requestInfo the request info to execute.
-     * @param array{string, string} $targetCallable the callable representing object creation logic.
-     * @param array<string, array{string, string}>|null $errorMappings
+     * @param array{class-string<T>,string} $targetCallable the callable representing object creation logic.
+     * @param array<string, array{class-string<T>, string}>|null $errorMappings
      * @return Promise with the deserialized response model collection.
      */
     public function sendCollectionAsync(
@@ -49,9 +52,10 @@ interface RequestAdapter {
 
     /**
      * Executes the HTTP request specified by the given RequestInformation and returns the deserialized primitive response model.
+     * @template T of Parsable
      * @param RequestInformation $requestInfo
      * @param string $primitiveType e.g. int, bool
-     * @param array<string, array{string, string}>|null $errorMappings
+     * @param array<string, array{class-string<T>, string}>|null $errorMappings
      * @return Promise
      */
     public function sendPrimitiveAsync(
@@ -62,9 +66,10 @@ interface RequestAdapter {
 
     /**
      * Executes the HTTP request specified by the given RequestInformation and returns the deserialized primitive response model collection.
+     * @template T of Parsable
      * @param RequestInformation $requestInfo
      * @param string $primitiveType e.g. int, bool
-     * @param array<string, array{string, string}>|null $errorMappings
+     * @param array<string, array{class-string<T>, string}>|null $errorMappings
      * @return Promise
      */
     public function sendPrimitiveCollectionAsync(
@@ -75,8 +80,9 @@ interface RequestAdapter {
 
     /**
      * Executes the HTTP request specified by the given RequestInformation with no return content.
+     * @template T of Parsable
      * @param RequestInformation $requestInfo
-     * @param array<string, array{string, string}>|null $errorMappings
+     * @param array<string, array{class-string<T>, string}>|null $errorMappings
      * @return Promise
      */
     public function sendNoContentAsync(RequestInformation $requestInfo, ?array $errorMappings = null): Promise;
