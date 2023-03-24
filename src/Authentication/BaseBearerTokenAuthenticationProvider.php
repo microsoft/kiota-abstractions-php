@@ -57,7 +57,7 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
 
     /**
      * @param RequestInformation $request
-     * @param array $additionalAuthenticationContext
+     * @param array<string, mixed> $additionalAuthenticationContext
      * @return Promise
      */
     public function authenticateRequest(RequestInformation $request, array $additionalAuthenticationContext = []): Promise {

@@ -27,7 +27,7 @@ interface AccessTokenProvider
      * Returns a Promise that is fulfilled with the access token string
      *
      * @param string $url the target URI to get an access token for
-     * @param array $additionalAuthenticationContext
+     * @param array<string, mixed> $additionalAuthenticationContext
      * @return Promise
      */
     public function getAuthorizationTokenAsync(string $url, array $additionalAuthenticationContext = []): Promise;
