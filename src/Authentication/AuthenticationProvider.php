@@ -20,5 +20,8 @@ interface AuthenticationProvider {
      * @param array<string, mixed> $additionalAuthenticationContext
      * @return Promise
      */
-    public function authenticateRequest(RequestInformation $request, array $additionalAuthenticationContext = []): Promise;
+    public function authenticateRequest(
+        RequestInformation $request,
+        array $additionalAuthenticationContext = []
+    ): Promise;
 }

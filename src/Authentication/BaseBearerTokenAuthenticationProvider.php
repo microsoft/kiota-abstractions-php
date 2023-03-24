@@ -60,7 +60,11 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
      * @param array<string, mixed> $additionalAuthenticationContext
      * @return Promise
      */
-    public function authenticateRequest(RequestInformation $request, array $additionalAuthenticationContext = []): Promise {
+    public function authenticateRequest(
+        RequestInformation $request,
+        array $additionalAuthenticationContext = []
+    ): Promise
+    {
         if (array_key_exists(self::$claimsKey, $additionalAuthenticationContext)
             && $request->getHeaders()->contains(self::$authorizationHeaderKey)
         ) {
@@ -68,8 +72,9 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
         }
 
         if (!$request->getHeaders()->contains(self::$authorizationHeaderKey)) {
-            return $this->getAccessTokenProvider()->getAuthorizationTokenAsync($request->getUri(), $additionalAuthenticationContext)
-                        ->then(function ($token) use($request) {
+            return $this->getAccessTokenProvider()
+                        ->getAuthorizationTokenAsync($request->getUri(), $additionalAuthenticationContext)
+                        ->then(function ($token) use ($request) {
                             if ($token) {
                                 $request->addHeader(self::$authorizationHeaderKey, "Bearer {$token}");
                             }
