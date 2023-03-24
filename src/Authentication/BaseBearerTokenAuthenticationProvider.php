@@ -25,6 +25,13 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
     private static string $authorizationHeaderKey = "Authorization";
 
     /**
+     * Claims key to search for in $additionalAuthenticationContext
+     *
+     * @var string
+     */
+    private static string $claimsKey = "claims";
+
+    /**
      * @var AccessTokenProvider {@link AccessTokenProvider}
      */
     private AccessTokenProvider $accessTokenProvider;
@@ -50,12 +57,12 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
 
     /**
      * @param RequestInformation $request
+     * @param array $additionalAuthenticationContext
      * @return Promise
-     * @throws UriException
      */
-    public function authenticateRequest(RequestInformation $request): Promise {
+    public function authenticateRequest(RequestInformation $request, array $additionalAuthenticationContext = []): Promise {
         if (!$request->getHeaders()->contains(self::$authorizationHeaderKey)) {
-            return $this->getAccessTokenProvider()->getAuthorizationTokenAsync($request->getUri())
+            return $this->getAccessTokenProvider()->getAuthorizationTokenAsync($request->getUri(), $additionalAuthenticationContext)
                         ->then(function ($token) use($request) {
                             if ($token) {
                                 $request->addHeader(self::$authorizationHeaderKey, "Bearer {$token}");
