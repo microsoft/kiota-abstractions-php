@@ -61,8 +61,7 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
      * @return Promise
      */
     public function authenticateRequest(RequestInformation $request, array $additionalAuthenticationContext = []): Promise {
-        if ($additionalAuthenticationContext
-            && $additionalAuthenticationContext[self::$claimsKey] ?? null
+        if (array_key_exists(self::$claimsKey, $additionalAuthenticationContext)
             && $request->getHeaders()->contains(self::$authorizationHeaderKey)
         ) {
             $request->getHeaders()->remove(self::$authorizationHeaderKey);
