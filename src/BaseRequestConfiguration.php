@@ -5,9 +5,9 @@ namespace Microsoft\Kiota\Abstractions;
 abstract class BaseRequestConfiguration
 {
     /** @var array<string,array<string>|string> $headers */
-    protected array $headers = [];
+    public array $headers = [];
     /** @var array<RequestOption> $options */
-    protected array $options = [];
+    public array $options = [];
 
     /**
      * @param array<string,string|array<string>> $headers
