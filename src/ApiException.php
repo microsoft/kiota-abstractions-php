@@ -12,6 +12,9 @@ class ApiException extends Exception
      */
     private ?int $responseStatusCode = null;
 
+    /** @var array<string, string[]> */
+    private array $responseHeaders = [];
+
     /**
      * @param string $message
      * @param int $code
@@ -40,5 +43,21 @@ class ApiException extends Exception
     public function getResponseStatusCode(): ?int
     {
         return $this->responseStatusCode;
+    }
+
+    /**
+     * @param array<string, string[]> $responseHeaders
+     */
+    public function setResponseHeaders(array $responseHeaders): void
+    {
+        $this->responseHeaders = $responseHeaders;
+    }
+
+    /**
+     * @return array<string, string[]>
+     */
+    public function getResponseHeaders(): array
+    {
+        return $this->responseHeaders;
     }
 }
