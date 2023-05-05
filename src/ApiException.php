@@ -12,7 +12,7 @@ class ApiException extends Exception
      */
     private ?int $responseStatusCode = null;
 
-    /** @var array<string, mixed> */
+    /** @var array<string, string[]> */
     private array $responseHeaders = [];
 
     /**
@@ -46,7 +46,7 @@ class ApiException extends Exception
     }
 
     /**
-     * @param array<string, mixed> $responseHeaders
+     * @param array<string, string[]> $responseHeaders
      */
     public function setResponseHeaders(array $responseHeaders): void
     {
@@ -54,7 +54,7 @@ class ApiException extends Exception
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, string[]>
      */
     public function getResponseHeaders(): array
     {
