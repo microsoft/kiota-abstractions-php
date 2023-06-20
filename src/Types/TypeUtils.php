@@ -30,7 +30,7 @@ class TypeUtils
             foreach ($values as $value) {
                 $debugType = get_debug_type($value);
                 if ($type !== $debugType) {
-                    throw new UnexpectedValueException("Collection of type=$type contains value of type=$type");
+                    throw new UnexpectedValueException("Collection of type=$type contains value of type=$debugType");
                 }
             }
         }
