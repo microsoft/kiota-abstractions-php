@@ -29,7 +29,7 @@ class TypeUtils
         if (is_array($values)) {
             foreach ($values as $value) {
                 $debugType = get_debug_type($value);
-                if ($type !== $debugType) {
+                if ($type !== $debugType && !is_subclass_of($value, $type)) {
                     throw new UnexpectedValueException("Collection of type=$type contains value of type=$debugType");
                 }
             }
