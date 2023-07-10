@@ -41,8 +41,23 @@ class TypeUtilsTest extends TestCase
             }
         }
     }
+
+    public function testValidationWithChildClasses(): void
+    {
+        $this->expectNotToPerformAssertions();
+        TypeUtils::validateCollectionValues([new ChildCustomType(), new ChildCustomType()], TestCustomType::class);
+        TypeUtils::validateCollectionValues([new ChildCustomType(), new ChildCustomType()], TestInterface::class);
+    }
 }
 
 class TestCustomType {
+
+}
+
+class ChildCustomType extends TestCustomType implements TestInterface {
+
+}
+
+interface TestInterface {
 
 }
