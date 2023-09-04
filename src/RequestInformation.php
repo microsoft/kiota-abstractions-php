@@ -6,13 +6,12 @@ use DateTimeInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
-use League\Uri\Contracts\UriException;
-use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\API\Trace\TracerInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use stduritemplate\StdUriTemplate;
 
 class RequestInformation {
     /** @var string $RAW_URL_KEY */
@@ -64,7 +63,7 @@ class RequestInformation {
 
     /** Gets the URI of the request.
      * @return string
-     * @throws UriException
+     * @throws InvalidArgumentException
      */
     public function getUri(): string {
         if (!empty($this->uri)) {
@@ -74,7 +73,6 @@ class RequestInformation {
             && is_string($this->pathParameters[self::$RAW_URL_KEY])) {
             $this->setUri($this->pathParameters[self::$RAW_URL_KEY]);
         } else {
-            $template = new UriTemplate($this->urlTemplate);
             if (substr_count(strtolower($this->urlTemplate), '{+baseurl}') > 0 && !isset($this->pathParameters['baseurl'])) {
                 throw new InvalidArgumentException('"PathParameters must contain a value for "baseurl" for the url to be built.');
             }
@@ -88,7 +86,7 @@ class RequestInformation {
             }
             $params = array_merge($this->pathParameters, $this->queryParameters);
 
-            return $template->expand($params);
+            return StdUriTemplate::expand($this->urlTemplate, $params);
         }
         return $this->uri;
     }
