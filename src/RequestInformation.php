@@ -193,6 +193,9 @@ class RequestInformation {
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
