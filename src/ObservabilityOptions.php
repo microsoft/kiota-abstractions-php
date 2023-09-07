@@ -5,7 +5,7 @@ namespace Microsoft\Kiota\Abstractions;
 use OpenTelemetry\API\Common\Instrumentation\Globals;
 use OpenTelemetry\API\Trace\TracerInterface;
 
-class ObservabilityOptions
+class ObservabilityOptions implements RequestOption
 {
     private static ?TracerInterface $tracer = null;
     private const OBSERVABILITY_TRACER_NAME = 'microsoft-php-kiota-abstractions';
