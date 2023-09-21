@@ -8,8 +8,13 @@ use OpenTelemetry\API\Trace\TracerInterface;
 class ObservabilityOptions implements RequestOption
 {
     private static ?TracerInterface $tracer = null;
-    private const OBSERVABILITY_TRACER_NAME = 'microsoft-php-kiota-abstractions';
+    private const OBSERVABILITY_TRACER_NAME = 'microsoft.kiota.abstractions:microsoft-php-kiota-abstractions';
     public const REQUEST_TYPE_KEY = "com.microsoft.kiota.request.type";
+
+    public function __construct()
+    {
+        self::$tracer = Globals::tracerProvider()->getTracer(self::OBSERVABILITY_TRACER_NAME, Constants::VERSION);
+    }
 
     /**
      * @return TracerInterface

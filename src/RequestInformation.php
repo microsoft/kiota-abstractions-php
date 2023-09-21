@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use League\Uri\Contracts\UriException;
 use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use OpenTelemetry\API\Trace\StatusCode;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
@@ -161,8 +162,12 @@ class RequestInformation {
             $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex = new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
         } finally {
             $scope->detach();
             $span->end();
@@ -218,8 +223,12 @@ class RequestInformation {
             $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($value));
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex =  new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
         } finally {
             $scope->detach();
             $span->end();
@@ -247,8 +256,12 @@ class RequestInformation {
             }
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex = new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
         } finally {
             $scope->detach();
             $span->end();

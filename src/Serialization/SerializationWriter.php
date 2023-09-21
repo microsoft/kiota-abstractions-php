@@ -129,7 +129,7 @@ interface SerializationWriter {
     * @param string|null $key The key for the value.
     * @param mixed|null $value.
     **/
-    public function writeAnyValue(?string $key, $value, ?SpanInterface $span = null): void;
+    public function writeAnyValue(?string $key, $value): void;
 
     /**
      * Write a binary stream.
