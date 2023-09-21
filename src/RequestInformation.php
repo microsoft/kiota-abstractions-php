@@ -10,6 +10,7 @@ use League\Uri\Contracts\UriException;
 use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\API\Trace\TracerInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
@@ -43,10 +44,20 @@ class RequestInformation {
     /** @var non-empty-string $contentTypeHeader */
     public static string $contentTypeHeader = 'Content-Type';
     private static AnnotationReader $annotationReader;
-
-    public function __construct()
+    /**
+     * @var ObservabilityOptions $observabilityOptions
+     */
+    private ObservabilityOptions $observabilityOptions;
+    /** @var TracerInterface $tracer */
+    private TracerInterface $tracer;
+    /**
+     * @param ObservabilityOptions|null $observabilityOptions
+     */
+    public function __construct(?ObservabilityOptions $observabilityOptions = null)
     {
         $this->headers = new RequestHeaders();
+        $this->observabilityOptions = $observabilityOptions ?? new ObservabilityOptions();
+        $this->tracer = $this->observabilityOptions::getTracer();
         // Init annotation utils
         self::$annotationReader = new AnnotationReader();
     }
@@ -153,7 +164,7 @@ class RequestInformation {
      * @param Parsable $value the models.
      */
     public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable $value): void {
-        $span = ObservabilityOptions::getTracer()->spanBuilder('setContentFromParsableCollection')
+        $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
             ->startSpan();
         $scope = $span->activate();
         try {
@@ -184,7 +195,7 @@ class RequestInformation {
      */
     public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void
     {
-        $span = ObservabilityOptions::getTracer()->spanBuilder('setContentFromParsableCollection')
+        $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
             ->startSpan();
         $scope = $span->activate();
         try {
@@ -213,7 +224,7 @@ class RequestInformation {
      * @return void
      */
     public function setContentFromScalar(RequestAdapter $requestAdapter, string $contentType, $value): void {
-        $span = ObservabilityOptions::getTracer()->spanBuilder('setContentFromScalar')
+        $span = $this->tracer->spanBuilder('setContentFromScalar')
             ->startSpan();
         $scope = $span->activate();
         try {
@@ -244,7 +255,7 @@ class RequestInformation {
      * @return void
      */
     public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void {
-        $span = ObservabilityOptions::getTracer()->spanBuilder('setContentFromScalarCollection')
+        $span = $this->tracer->spanBuilder('setContentFromScalarCollection')
             ->startSpan();
         $scope = $span->activate();
         try {
