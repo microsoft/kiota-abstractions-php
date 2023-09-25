@@ -164,7 +164,7 @@ class RequestInformation {
      * @param Parsable $value the models.
      */
     public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable $value): void {
-        $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
+        $span = $this->tracer->spanBuilder('setContentFromParsable')
             ->startSpan();
         $scope = $span->activate();
         try {
