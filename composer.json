@@ -27,6 +27,8 @@
 		"php-http/promise": "^1.1.0",
 		"league/uri": "^6.5",
 		"doctrine/annotations": "^1.13 || ^2.0",
+		"open-telemetry/sdk": "^0.0.17",
+		"open-telemetry/api": "^0.0.17",
 		"ramsey/uuid": "^3 || ^4"
 	},
     "require-dev": {

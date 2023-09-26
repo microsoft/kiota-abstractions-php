@@ -9,6 +9,8 @@ use InvalidArgumentException;
 use League\Uri\Contracts\UriException;
 use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\API\Trace\TracerInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
@@ -39,13 +41,23 @@ class RequestInformation {
     private array $requestOptions = [];
     /** @var string $binaryContentType */
     private static string $binaryContentType = 'application/octet-stream';
-    /** @var string $contentTypeHeader */
+    /** @var non-empty-string $contentTypeHeader */
     public static string $contentTypeHeader = 'Content-Type';
     private static AnnotationReader $annotationReader;
-
-    public function __construct()
+    /**
+     * @var ObservabilityOptions $observabilityOptions
+     */
+    private ObservabilityOptions $observabilityOptions;
+    /** @var TracerInterface $tracer */
+    private TracerInterface $tracer;
+    /**
+     * @param ObservabilityOptions|null $observabilityOptions
+     */
+    public function __construct(?ObservabilityOptions $observabilityOptions = null)
     {
         $this->headers = new RequestHeaders();
+        $this->observabilityOptions = $observabilityOptions ?? new ObservabilityOptions();
+        $this->tracer = $this->observabilityOptions::getTracer();
         // Init annotation utils
         self::$annotationReader = new AnnotationReader();
     }
@@ -152,13 +164,24 @@ class RequestInformation {
      * @param Parsable $value the models.
      */
     public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable $value): void {
+        $span = $this->tracer->spanBuilder('setContentFromParsable')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeObjectValue(null, $value);
+            $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex = new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -172,13 +195,23 @@ class RequestInformation {
      */
     public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void
     {
+        $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeCollectionOfObjectValues(null, $values);
+            $span->setAttribute(self::$contentTypeHeader, $contentType);
+            if (!empty($values)) {
+                $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($values[0]));
+            }
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -191,13 +224,25 @@ class RequestInformation {
      * @return void
      */
     public function setContentFromScalar(RequestAdapter $requestAdapter, string $contentType, $value): void {
+        $span = $this->tracer->spanBuilder('setContentFromScalar')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeAnyValue(null, $value);
+            $span->setAttribute(self::$contentTypeHeader, $contentType);
+            $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($value));
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex =  new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -210,13 +255,27 @@ class RequestInformation {
      * @return void
      */
     public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void {
+        $span = $this->tracer->spanBuilder('setContentFromScalarCollection')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeCollectionOfPrimitiveValues(null, $values);
+            $span->setAttribute(self::$contentTypeHeader, $contentType);
+            if (!empty($values)) {
+                $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($values[0]));
+            }
             $this->headers->add(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex = new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
