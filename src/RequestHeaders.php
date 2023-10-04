@@ -48,6 +48,23 @@ class RequestHeaders
     }
 
     /**
+     * Try to add a value to the existing values for that specific header if it's not already set.
+     * @param string $key
+     * @param string $value
+     * @return boolean if the value have been added
+     */
+    public function tryAdd(string $key, string $value): void
+    {
+        $lowercaseKey = strtolower($key);
+        if (array_key_exists($lowercaseKey, $this->headers)) {
+            return false;
+        } else {
+            $this->headers[$lowercaseKey] = [$value => true];
+            return true;
+        }
+    }
+
+    /**
      * Returns the lowercase version of a string.
      * @param string $key
      * @return string
