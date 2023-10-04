@@ -53,7 +53,7 @@ class RequestHeaders
      * @param string $value
      * @return boolean if the value have been added
      */
-    public function tryAdd(string $key, string $value): void
+    public function tryAdd(string $key, string $value): bool
     {
         $lowercaseKey = strtolower($key);
         if (array_key_exists($lowercaseKey, $this->headers)) {
