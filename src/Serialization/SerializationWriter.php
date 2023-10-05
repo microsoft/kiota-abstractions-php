@@ -6,6 +6,7 @@ use DateTime;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
+use OpenTelemetry\API\Trace\SpanInterface;
 use Psr\Http\Message\StreamInterface;
 
 /** Defines an interface for serialization of objects to a stream. */

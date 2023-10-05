@@ -93,16 +93,25 @@ class RequestInformationTest extends TestCase {
         $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01T00%3A00%3A00%2B00%3A00',toDateTime='2022-08-02T00%3A00%3A00%2B00%3A00')", $uri);
     }
 
-    /**
-     * @throws UriException
-     */
     public function testCanHandleBooleanTypes(): void {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "http://localhost/users{?%24exists}";
+
+        $requestInfo->setPathParameters(['%24exists' => true]);
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals('http://localhost/users?%24exists=true', $uri);
+    }
+
+    public function testCanHandleNumericTypes(): void {
         // Arrange as the request builders would
         $requestInfo = new RequestInformation();
         $requestInfo->httpMethod = HttpMethod::GET;
         $requestInfo->urlTemplate = "http://localhost/users{?%24count}";
 
-        $requestInfo->setPathParameters(['%24count' => true]);
+        $requestInfo->setPathParameters(['%24count' => 1]);
         // Assert
         $uri = $requestInfo->getUri();
         $this->assertEquals('http://localhost/users?%24count=1', $uri);
