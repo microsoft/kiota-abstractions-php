@@ -153,7 +153,7 @@ class RequestInformation {
      */
     public function setStreamContent(StreamInterface $value): void {
         $this->content = $value;
-        $this->headers->add(self::$contentTypeHeader, self::$binaryContentType);
+        $this->headers->tryAdd(self::$contentTypeHeader, self::$binaryContentType);
     }
 
     /**
@@ -171,7 +171,7 @@ class RequestInformation {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeObjectValue(null, $value);
             $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
             $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
@@ -205,7 +205,7 @@ class RequestInformation {
             if (!empty($values)) {
                 $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($values[0]));
             }
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
@@ -232,7 +232,7 @@ class RequestInformation {
             $writer->writeAnyValue(null, $value);
             $span->setAttribute(self::$contentTypeHeader, $contentType);
             $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($value));
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
             $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
@@ -265,7 +265,7 @@ class RequestInformation {
             if (!empty($values)) {
                 $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($values[0]));
             }
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
             $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
