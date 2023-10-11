@@ -4,5 +4,5 @@ namespace Microsoft\Kiota\Abstractions;
 
 final class Constants
 {
-    public const VERSION = '0.8.2';
+    public const VERSION = '0.8.3';
 }
