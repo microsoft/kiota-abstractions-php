@@ -151,7 +151,7 @@ class RequestInformation {
      * @param string $contentType the content type of the stream
      */
     public function setStreamContent(StreamInterface $value, string $contentType): void {
-        if (empty($contentType)) {
+        if (empty(trim($contentType))) {
             $contentType = self::$binaryContentType;
         }
         $this->content = $value;
