@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adds CHANGELOG. [#86](https://github.com/microsoft/kiota-abstractions-php/pull/86)
 
 ### Changed
-
+- Update tests for date serialization logic. [#89](https://github.com/microsoft/kiota-abstractions-php/pull/89)
 
 ## [0.8.2] - 2023-10-05
 
