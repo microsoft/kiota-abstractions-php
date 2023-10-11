@@ -8,10 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Adds CHANGELOG. [#86](https://github.com/microsoft/kiota-abstractions-php/pull/86)
 
 ### Changed
 
+## [0.8.3] - 2023-10-11
+
+### Added
+
+- Adds CHANGELOG. [#86](https://github.com/microsoft/kiota-abstractions-php/pull/86)
+- Added a content type parameter to the set stream content method in request information.
+- Added a try add method for request headers.
 
 ## [0.8.2] - 2023-10-05
 
