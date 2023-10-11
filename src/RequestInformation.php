@@ -148,10 +148,14 @@ class RequestInformation {
     /**
      * Sets the request body to be a binary stream.
      * @param StreamInterface $value the binary stream
+     * @param string $contentType the content type of the stream
      */
-    public function setStreamContent(StreamInterface $value): void {
+    public function setStreamContent(StreamInterface $value, string $contentType): void {
+        if (empty(trim($contentType))) {
+            $contentType = self::$binaryContentType;
+        }
         $this->content = $value;
-        $this->headers->tryAdd(self::$contentTypeHeader, self::$binaryContentType);
+        $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
     }
 
     /**
