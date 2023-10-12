@@ -150,7 +150,7 @@ class RequestInformation {
      * @param StreamInterface $value the binary stream
      * @param string $contentType the content type of the stream
      */
-    public function setStreamContent(StreamInterface $value, string $contentType = "application/octet-stream"): void {
+    public function setStreamContent(StreamInterface $value, string $contentType = 'application/octet-stream'): void {
         if (empty(trim($contentType))) {
             $contentType = self::$binaryContentType;
         }
