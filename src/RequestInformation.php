@@ -357,4 +357,15 @@ class RequestInformation {
     {
         $this->headers->add($key, $value);
     }
+
+    /**
+     * Try to add a key/value element to the headers if it is not already set.
+     * @param string $key
+     * @param string $value
+     * @return bool if the value have been added
+     */
+    public function tryAddHeader(string $key, string $value): bool
+    {
+        return $this->headers->tryAdd($key, $value);
+    }
 }
