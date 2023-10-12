@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - exposed the tryAdd method of request headers through request info.
 
+### Changed
+- Defaults the content type parameter in `setStreamContent` to `application/octet-stream`
+
 ## [0.8.3] - 2023-10-11
 
 ### Added
