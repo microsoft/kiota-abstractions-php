@@ -110,6 +110,18 @@ class RequestInformationTest extends TestCase {
         $uri = $requestInfo->getUri();
         $this->assertEquals('http://localhost/users?%24count=true', $uri);
     }
+
+    public function testExposeTryAddRequestHeader(): void {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+
+        // Assert
+        $this->assertTrue($requestInfo->tryAddHeader("key", "value1"));
+        $this->assertFalse($requestInfo->tryAddHeader("key", "value2"));
+        $res = $requestInfo->getHeaders()->get("key");
+        $this->assertEquals(1, count($res));
+        $this->assertEquals("value1", $res[0]);
+    }
 }
 
 class TestQueryParameter {

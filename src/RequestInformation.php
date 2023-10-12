@@ -150,7 +150,7 @@ class RequestInformation {
      * @param StreamInterface $value the binary stream
      * @param string $contentType the content type of the stream
      */
-    public function setStreamContent(StreamInterface $value, string $contentType): void {
+    public function setStreamContent(StreamInterface $value, string $contentType = 'application/octet-stream'): void {
         if (empty(trim($contentType))) {
             $contentType = self::$binaryContentType;
         }
@@ -356,5 +356,16 @@ class RequestInformation {
     public function addHeader(string $key, string $value): void
     {
         $this->headers->add($key, $value);
+    }
+
+    /**
+     * Try to add a key/value element to the headers if it is not already set.
+     * @param string $key
+     * @param string $value
+     * @return bool if the value have been added
+     */
+    public function tryAddHeader(string $key, string $value): bool
+    {
+        return $this->headers->tryAdd($key, $value);
     }
 }
