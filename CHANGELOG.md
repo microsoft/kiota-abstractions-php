@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.8.5]
+
+### Changed
+- Disabled auto-suggestion of PSR implementations by OpenTelemetry SDK. [#95](https://github.com/microsoft/kiota-abstractions-php/pull/95)
+
 ## [0.8.4] - 2023-10-12
 
 ### Added
