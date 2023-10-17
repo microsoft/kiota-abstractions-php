@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.8.5]
+
+### Changed
+- Provided PSR implementations required by OpenTelemetry SDK as dev dependencies and disabled auto-suggestion of implementations
+
 ## [0.8.4] - 2023-10-12
 
 ### Added
