@@ -11,7 +11,7 @@ use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\API\Trace\TracerInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
-use stduritemplate\StdUriTemplate;
+use StdUriTemplate\StdUriTemplate;
 
 class RequestInformation {
     /** @var string $RAW_URL_KEY */
