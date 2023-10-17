@@ -34,6 +34,13 @@
 	},
     "require-dev": {
       "phpstan/phpstan": "^1.2.0",
-      "phpunit/phpunit": "^8.5.5 || ^9.3.5"
+      "phpunit/phpunit": "^8.5.5 || ^9.3.5",
+	  "guzzlehttp/guzzle": "^7.0",
+	  "php-http/guzzle7-adapter": "^1.0"
+    },
+	"config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     }
 }
