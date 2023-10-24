@@ -149,15 +149,53 @@ class InMemoryBackingStoreTest extends TestCase
         $this->assertEquals(2, sizeof($this->backingStore->get('key')));
         $this->assertEquals(250, $this->backingStore->get('key')[1]->getAge());
     }
+
+
+    public function testChangesToBackedModelAsBackingStoreValueMakesEntireModelDirty(): void
+    {
+        $nestedBackedModel = new SampleBackedModel();
+        $nestedBackedModel->setName('name');
+        $nestedBackedModel->setAge(10);
+        $nestedBackedModel->getBackingStore()->setIsInitializationCompleted(true);
+
+        $this->backingStore->set('user', $nestedBackedModel);
+        $this->backingStore->setIsInitializationCompleted(true);
+
+        $nestedBackedModel->setAge(5);
+
+        $this->backingStore->setReturnOnlyChangedValues(true);
+        $nestedBackedModel->getBackingStore()->setReturnOnlyChangedValues(true);
+
+        $this->assertInstanceOf(BackedModel::class, $this->backingStore->get('user'));
+        $this->assertEquals(2, sizeof(array_keys($this->backingStore->get('user')->getBackingStore()->enumerate())));
+    }
+
+    public function testChangesToBackedModelCollectionAsBackingStoreValueMakesEntireModelDirty(): void
+    {
+        $nestedBackedModel = new SampleBackedModel();
+        $nestedBackedModel->setName('name');
+        $nestedBackedModel->setAge(10);
+        $nestedBackedModel->getBackingStore()->setIsInitializationCompleted(true);
+
+        $this->backingStore->set('user', [$nestedBackedModel, clone $nestedBackedModel]);
+        $this->backingStore->setIsInitializationCompleted(true);
+
+        $nestedBackedModel->setAge(5);
+
+        $this->backingStore->setReturnOnlyChangedValues(true);
+        $nestedBackedModel->getBackingStore()->setReturnOnlyChangedValues(true);
+
+        $this->assertIsArray($this->backingStore->get('user'));
+        $this->assertEquals(2, sizeof($this->backingStore->get('user')));
+        $this->assertEquals(2, sizeof(array_keys($this->backingStore->get('user')[1]->getBackingStore()->enumerate())));
+    }
 }
 
 class SampleBackedModel implements BackedModel
 {
-    private int $age;
-    private ?string $name = null;
     private BackingStore $backingStore;
 
-    public function __construct(int $age, ?string $name = null)
+    public function __construct(?int $age = null, ?string $name = null)
     {
         $this->backingStore = BackingStoreFactorySingleton::getInstance()->createBackingStore();
         $this->setAge($age);
@@ -165,17 +203,17 @@ class SampleBackedModel implements BackedModel
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getAge(): int
+    public function getAge(): ?int
     {
         return $this->backingStore->get("age");
     }
 
     /**
-     * @param int $age
+     * @param int|null  $age
      */
-    public function setAge(int $age): void
+    public function setAge(?int $age): void
     {
         $this->backingStore->set("age", $age);
     }
