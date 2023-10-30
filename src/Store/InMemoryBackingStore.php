@@ -38,7 +38,8 @@ class InMemoryBackingStore implements BackingStore
     public function set(string $key, $value): void
     {
         $oldValue = $this->store[$key] ?? null;
-        $valueToAdd = is_array($value) ? [$this->isInitializationCompleted, $value, count($value)] : [$this->isInitializationCompleted, $value];
+        $valueToAdd = is_array($value) ?
+            [$this->isInitializationCompleted, $value, count($value)] : [$this->isInitializationCompleted, $value];
 
         // Dirty track changes if $value is a model and its properties change
         if (!array_key_exists($key, $this->store)) {
@@ -52,7 +53,8 @@ class InMemoryBackingStore implements BackingStore
             if (is_array($value)) {
                 array_map(function ($item) use ($key, $value) {
                     if ($item instanceof BackedModel && $item->getBackingStore()) {
-                        $item->getBackingStore()->subscribe(function ($propertyKey, $oldVal, $newVal) use ($key, $value, $item) {
+                        $item->getBackingStore()->subscribe
+                        (function ($propertyKey, $oldVal, $newVal) use ($key, $value, $item) {
                             // Mark all properties as dirty
                             $item->getBackingStore()->setIsInitializationCompleted(false);
                             $this->set($key, $value);
@@ -199,11 +201,13 @@ class InMemoryBackingStore implements BackingStore
         if ($wrapper) {
             if (is_array($wrapper[1])) {
                 array_map(function ($item) {
-                    if ($item instanceof BackedModel) {
-                        if ($item->getBackingStore()) {
-                            // Call get() on nested properties so that this method may be called recursively to ensure collections are consistent
-                            array_map(fn ($itemKey) => $item->getBackingStore()->get($itemKey), array_keys($item->getBackingStore()->enumerate()));
-                        }
+                    if ($item instanceof BackedModel && $item->getBackingStore()) {
+                        // Call get() on nested properties so that this method may be called recursively
+                        // to ensure collections are consistent
+                        array_map(
+                            fn ($itemKey) => $item->getBackingStore()->get($itemKey),
+                            array_keys($item->getBackingStore()->enumerate())
+                        );
                     }
                 }, $wrapper[1]);
 
@@ -211,11 +215,13 @@ class InMemoryBackingStore implements BackingStore
                     $this->set($key, $wrapper[1]);
                 }
             }
-            if ($wrapper[1] instanceof BackedModel) {
-                // Call get() on nested properties so that this method may be called recursively to ensure collections are consistent
-                if ($wrapper[1]->getBackingStore()) {
-                    array_map(fn ($itemKey) => $wrapper[1]->getBackingStore()->get($itemKey), array_keys($wrapper[1]->getBackingStore()->enumerate()));
-                }
+            if ($wrapper[1] instanceof BackedModel && $wrapper[1]->getBackingStore()) {
+                // Call get() on nested properties so that this method may be called recursively
+                // to ensure collections are consistent
+                array_map(
+                    fn ($itemKey) => $wrapper[1]->getBackingStore()->get($itemKey),
+                    array_keys($wrapper[1]->getBackingStore()->enumerate())
+                );
             }
         }
     }
