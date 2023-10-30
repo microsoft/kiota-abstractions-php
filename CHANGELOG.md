@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adds generic types to Promise types in PHPDocs
 
 ### Changed
+- Ensure changes to nested BackedModel or array<BackedModel> properties in the backing store makes the entire backing store value dirty.
 
 ## [0.8.5]
 
