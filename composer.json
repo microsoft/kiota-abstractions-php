@@ -29,7 +29,7 @@
 		"open-telemetry/sdk": "^0.0.17",
 		"open-telemetry/api": "^0.0.17",
 		"ramsey/uuid": "^3 || ^4",
-		"stduritemplate/stduritemplate": "^0.0.44 || ^0.0.46",
+		"stduritemplate/stduritemplate": "^0.0.46",
 		"psr/http-message": "^1.1 || ^2.0"
 	},
     "require-dev": {
