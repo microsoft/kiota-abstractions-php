@@ -8,11 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Adds generic types to Promise types in PHPDocs
 
 ### Changed
 
-## [0.8.5]
+## [0.9.0] - 2023-10-30
+
+### Added
+- Adds generic types to Promise types in PHPDocs
+
+### Changed
+- Ensure changes to nested BackedModel or array<BackedModel> properties in the backing store makes the entire backing store value dirty.
+
+## [0.8.5] - 2023-10-17
 
 ### Changed
 - Disabled auto-suggestion of PSR implementations by OpenTelemetry SDK. [#95](https://github.com/microsoft/kiota-abstractions-php/pull/95)
