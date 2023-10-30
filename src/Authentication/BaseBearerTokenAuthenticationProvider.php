@@ -4,7 +4,6 @@ namespace Microsoft\Kiota\Abstractions\Authentication;
 
 use Http\Promise\FulfilledPromise;
 use Http\Promise\Promise;
-use League\Uri\Contracts\UriException;
 use Microsoft\Kiota\Abstractions\RequestInformation;
 
 /**
@@ -58,7 +57,7 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
     /**
      * @param RequestInformation $request
      * @param array<string, mixed> $additionalAuthenticationContext
-     * @return Promise
+     * @return Promise<RequestInformation>
      */
     public function authenticateRequest(
         RequestInformation $request,
@@ -78,9 +77,9 @@ class BaseBearerTokenAuthenticationProvider implements AuthenticationProvider {
                             if ($token) {
                                 $request->addHeader(self::$authorizationHeaderKey, "Bearer {$token}");
                             }
-                            return null;
+                            return $request;
                         });
         }
-        return new FulfilledPromise(null);
+        return new FulfilledPromise($request);
     }
 }

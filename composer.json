@@ -24,7 +24,7 @@
 	},
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"php-http/promise": "^1.1.0",
+		"php-http/promise": "^1.2.0",
 		"doctrine/annotations": "^1.13 || ^2.0",
 		"open-telemetry/sdk": "^0.0.17",
 		"open-telemetry/api": "^0.0.17",
