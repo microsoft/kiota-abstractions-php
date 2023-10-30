@@ -153,10 +153,7 @@ class InMemoryBackingStoreTest extends TestCase
 
     public function testChangesToBackedModelAsBackingStoreValueMakesEntireModelDirty(): void
     {
-        $nestedBackedModel = new SampleBackedModel();
-        $nestedBackedModel->setName('name');
-        $nestedBackedModel->setAge(10);
-        $nestedBackedModel->getBackingStore()->setIsInitializationCompleted(true);
+        $nestedBackedModel = new SampleBackedModel(10, 'name');
 
         $this->backingStore->set('user', $nestedBackedModel);
         $this->backingStore->setIsInitializationCompleted(true);
@@ -172,12 +169,10 @@ class InMemoryBackingStoreTest extends TestCase
 
     public function testChangesToBackedModelCollectionAsBackingStoreValueMakesEntireModelDirty(): void
     {
-        $nestedBackedModel = new SampleBackedModel();
-        $nestedBackedModel->setName('name');
-        $nestedBackedModel->setAge(10);
-        $nestedBackedModel->getBackingStore()->setIsInitializationCompleted(true);
+        $nestedBackedModel = new SampleBackedModel(10, 'name');
+        $anotherNestedBackedModel = new SampleBackedModel(100, 'FirstName');
 
-        $this->backingStore->set('user', [$nestedBackedModel, clone $nestedBackedModel]);
+        $this->backingStore->set('user', [$nestedBackedModel, $anotherNestedBackedModel]);
         $this->backingStore->setIsInitializationCompleted(true);
 
         $nestedBackedModel->setAge(5);
@@ -187,6 +182,7 @@ class InMemoryBackingStoreTest extends TestCase
 
         $this->assertIsArray($this->backingStore->get('user'));
         $this->assertEquals(2, sizeof($this->backingStore->get('user')));
+        $this->assertEquals(2, sizeof(array_keys($this->backingStore->get('user')[0]->getBackingStore()->enumerate())));
         $this->assertEquals(2, sizeof(array_keys($this->backingStore->get('user')[1]->getBackingStore()->enumerate())));
     }
 }
