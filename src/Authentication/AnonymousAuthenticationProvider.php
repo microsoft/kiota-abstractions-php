@@ -11,13 +11,13 @@ class AnonymousAuthenticationProvider implements AuthenticationProvider {
     /**
      * @param RequestInformation $request Request information
      * @param array<string, mixed> $additionalAuthenticationContext
-     * @return Promise
+     * @return Promise<RequestInformation>
      */
     public function authenticateRequest(
         RequestInformation $request,
         array $additionalAuthenticationContext = []
     ): Promise
     {
-        return new FulfilledPromise(null);
+        return new FulfilledPromise($request);
     }
 }

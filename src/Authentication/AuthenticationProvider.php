@@ -18,7 +18,7 @@ interface AuthenticationProvider {
     /**
      * @param RequestInformation $request
      * @param array<string, mixed> $additionalAuthenticationContext
-     * @return Promise
+     * @return Promise<RequestInformation>
      */
     public function authenticateRequest(
         RequestInformation $request,

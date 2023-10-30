@@ -38,17 +38,27 @@ class InMemoryBackingStore implements BackingStore
     public function set(string $key, $value): void
     {
         $oldValue = $this->store[$key] ?? null;
-        $valueToAdd = is_array($value) ? [$this->isInitializationCompleted, $value, count($value)] : [$this->isInitializationCompleted, $value];
+        $valueToAdd = is_array($value) ?
+            [$this->isInitializationCompleted, $value, count($value)] : [$this->isInitializationCompleted, $value];
 
         // Dirty track changes if $value is a model and its properties change
         if (!array_key_exists($key, $this->store)) {
             if ($value instanceof BackedModel && $value->getBackingStore()) {
-                $value->getBackingStore()->subscribe(fn ($propertyKey, $oldVal, $newVal) => $this->set($key, $value));
+                $value->getBackingStore()->subscribe(function ($propertyKey, $oldVal, $newVal) use ($key, $value) {
+                    // Mark all properties as dirty
+                    $value->getBackingStore()->setIsInitializationCompleted(false);
+                    $this->set($key, $value);
+                });
             }
             if (is_array($value)) {
                 array_map(function ($item) use ($key, $value) {
                     if ($item instanceof BackedModel && $item->getBackingStore()) {
-                        $item->getBackingStore()->subscribe(fn ($propertyKey, $oldVal, $newVal) => $this->set($key, $value));
+                        $item->getBackingStore()->subscribe
+                        (function ($propertyKey, $oldVal, $newVal) use ($key, $value, $item) {
+                            // Mark all properties as dirty
+                            $item->getBackingStore()->setIsInitializationCompleted(false);
+                            $this->set($key, $value);
+                        });
                     }
                 }, $value);
             }
@@ -113,6 +123,20 @@ class InMemoryBackingStore implements BackingStore
      */
     public function setIsInitializationCompleted(bool $value): void {
         $this->isInitializationCompleted = $value;
+        // Update existing values in store
+        foreach ($this->store as $key => $storedValue) {
+            $storedValue[0] = !$storedValue[0];
+            if ($storedValue[1] instanceof BackedModel && $storedValue[1]->getBackingStore()) {
+                $storedValue[1]->getBackingStore()->setIsInitializationCompleted($value);
+            }
+            if (is_array($storedValue[1])) {
+                array_map(function ($item) use ($value) {
+                    if ($item instanceof BackedModel && $item->getBackingStore()) {
+                        $item->getBackingStore()->setIsInitializationCompleted($value);
+                    }
+                }, $storedValue[1]);
+            }
+        }
     }
 
     /**
@@ -174,9 +198,30 @@ class InMemoryBackingStore implements BackingStore
      */
     private function checkCollectionSizeChanged(string $key): void {
         $wrapper = $this->store[$key] ?? null;
-        if ($wrapper && is_array($wrapper[1])) {
-            if (sizeof($wrapper[1]) != $wrapper[2]) {
-                $this->set($key, $wrapper[1]);
+        if ($wrapper) {
+            if (is_array($wrapper[1])) {
+                array_map(function ($item) {
+                    if ($item instanceof BackedModel && $item->getBackingStore()) {
+                        // Call get() on nested properties so that this method may be called recursively
+                        // to ensure collections are consistent
+                        array_map(
+                            fn ($itemKey) => $item->getBackingStore()->get($itemKey),
+                            array_keys($item->getBackingStore()->enumerate())
+                        );
+                    }
+                }, $wrapper[1]);
+
+                if (sizeof($wrapper[1]) != $wrapper[2]) {
+                    $this->set($key, $wrapper[1]);
+                }
+            }
+            if ($wrapper[1] instanceof BackedModel && $wrapper[1]->getBackingStore()) {
+                // Call get() on nested properties so that this method may be called recursively
+                // to ensure collections are consistent
+                array_map(
+                    fn ($itemKey) => $wrapper[1]->getBackingStore()->get($itemKey),
+                    array_keys($wrapper[1]->getBackingStore()->enumerate())
+                );
             }
         }
     }
