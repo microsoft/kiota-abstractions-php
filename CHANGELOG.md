@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.9.1] - 2023-10-31
+
+### Changed
+- Made return type of `AccessTokenProvider` `getAuthorizationTokenAsync()` nullable. [#104](https://github.com/microsoft/kiota-abstractions-php/pull/104)
+
 ## [0.9.0] - 2023-10-30
 
 ### Added
