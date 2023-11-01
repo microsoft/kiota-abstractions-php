@@ -165,7 +165,11 @@ class RequestInformation {
      * @param string $contentType the content type.
      * @param Parsable|null $value the models.
      */
-    public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, ?Parsable $value): void {
+    public function setContentFromParsable(
+        RequestAdapter $requestAdapter,
+        string $contentType,
+        ?Parsable $value): void
+    {
         $span = $this->tracer->spanBuilder('setContentFromParsable')
             ->startSpan();
         $scope = $span->activate();
@@ -195,7 +199,10 @@ class RequestInformation {
      * @param Parsable[]|null $values
      * @return void
      */
-    public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, ?array $values): void
+    public function setContentFromParsableCollection(
+        RequestAdapter $requestAdapter,
+        string $contentType,
+        ?array $values): void
     {
         $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
             ->startSpan();
@@ -256,7 +263,11 @@ class RequestInformation {
      * @param array<int|float|string|bool|null> $values
      * @return void
      */
-    public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, ?array $values): void {
+    public function setContentFromScalarCollection(
+        RequestAdapter $requestAdapter,
+        string $contentType,
+        ?array $values): void
+    {
         $span = $this->tracer->spanBuilder('setContentFromScalarCollection')
             ->startSpan();
         $scope = $span->activate();
