@@ -49,7 +49,7 @@ interface RequestAdapter {
      * @param RequestInformation $requestInfo the request info to execute.
      * @param array{class-string<T>,string} $targetCallable the callable representing object creation logic.
      * @param array<string, array{class-string<V>, string}>|null $errorMappings
-     * @return Promise<array<T|null>|null> with the deserialized response model collection.
+     * @return Promise<array<T>|null> with the deserialized response model collection.
      */
     public function sendCollectionAsync(
         RequestInformation $requestInfo,
