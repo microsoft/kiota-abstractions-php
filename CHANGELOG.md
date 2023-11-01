@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.9.2] - 2023-11-01
+
+### Changed
+- Deserializing collections of objects to return a non-nullable value within the collection.
+
 ## [0.9.1] - 2023-10-31
 
 ### Changed
