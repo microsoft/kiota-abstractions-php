@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-## [0.10.0] - 2023-11-01
+## [1.0.0] - 2023-11-01
 
 ### Changed
 - Deserializing collections of objects to return a non-nullable value within the collection. [#106](https://github.com/microsoft/kiota-abstractions-php/pull/106)
