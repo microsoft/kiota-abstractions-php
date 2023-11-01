@@ -163,16 +163,16 @@ class RequestInformation {
      *
      * @param RequestAdapter $requestAdapter The adapter service to get the serialization writer from.
      * @param string $contentType the content type.
-     * @param Parsable $value the models.
+     * @param Parsable|null $value the models.
      */
-    public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable $value): void {
+    public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, ?Parsable $value): void {
         $span = $this->tracer->spanBuilder('setContentFromParsable')
             ->startSpan();
         $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeObjectValue(null, $value);
-            $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
+            $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, is_null($value) ? null : get_class($value));
             $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
             $span->setStatus(StatusCode::STATUS_OK);
@@ -192,10 +192,10 @@ class RequestInformation {
      *
      * @param RequestAdapter $requestAdapter
      * @param string $contentType
-     * @param Parsable[] $values
+     * @param Parsable[]|null $values
      * @return void
      */
-    public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void
+    public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, ?array $values): void
     {
         $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
             ->startSpan();
@@ -222,7 +222,7 @@ class RequestInformation {
      *
      * @param RequestAdapter $requestAdapter
      * @param string $contentType
-     * @param int|string|bool|float $value
+     * @param int|string|bool|float|null $value
      * @return void
      */
     public function setContentFromScalar(RequestAdapter $requestAdapter, string $contentType, $value): void {
@@ -253,10 +253,10 @@ class RequestInformation {
      *
      * @param RequestAdapter $requestAdapter
      * @param string $contentType
-     * @param array<int|float|string|bool> $values
+     * @param array<int|float|string|bool|null> $values
      * @return void
      */
-    public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void {
+    public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, ?array $values): void {
         $span = $this->tracer->spanBuilder('setContentFromScalarCollection')
             ->startSpan();
         $scope = $span->activate();
