@@ -2,7 +2,7 @@
 
 namespace Microsoft\Kiota\Abstractions;
 
-use OpenTelemetry\API\Common\Instrumentation\Globals;
+use OpenTelemetry\API\Globals;
 use OpenTelemetry\API\Trace\TracerInterface;
 
 class ObservabilityOptions implements RequestOption
