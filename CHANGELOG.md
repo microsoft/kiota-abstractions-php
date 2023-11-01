@@ -15,8 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Deserializing collections of objects to return a non-nullable value within the collection. [#106](https://github.com/microsoft/kiota-abstractions-php/pull/106)
-- Bump OpenTelemtry to stable 1.0.0. [#106](https://github.com/microsoft/kiota-abstractions-php/pull/106)
-- Support optional request bodies. [#107](https://github.com/microsoft/kiota-abstractions-php/pull/107)
+- Bump OpenTelemetry SDK dependency to stable 1.0.0. [#106](https://github.com/microsoft/kiota-abstractions-php/pull/106)
 
 ## [0.9.1] - 2023-10-31
 
