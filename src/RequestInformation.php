@@ -260,7 +260,7 @@ class RequestInformation {
      *
      * @param RequestAdapter $requestAdapter
      * @param string $contentType
-     * @param array<int|float|string|bool|null> $values
+     * @param array<int|float|string|bool>|null $values
      * @return void
      */
     public function setContentFromScalarCollection(
