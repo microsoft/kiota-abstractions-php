@@ -17,7 +17,7 @@ class RequestInformation {
     /** @var string $RAW_URL_KEY */
     public static string $RAW_URL_KEY = 'request-raw-url';
     /** @var string $urlTemplate The url template for the current request */
-    public string $urlTemplate;
+    public string $urlTemplate = '';
     /**
      * The path parameters for the current request
      * @var array<string,mixed> $pathParameters
