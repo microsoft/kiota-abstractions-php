@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.0.1]
+
+### Changed
+- Initialises URL Template in Request Information to empty string. [#111](https://github.com/microsoft/kiota-abstractions-php/pull/111)
+
 ## [1.0.0] - 2023-11-01
 
 ### Changed
