@@ -1,6 +1,6 @@
 # Kiota Abstractions Library for PHP
 
-[![Build Status](https://github.com/microsoft/kiota-abstractions/actions/workflows/pr-validation.yml/badge.svg)
+![Build Status](https://github.com/microsoft/kiota-abstractions-php/actions/workflows/pr-validation.yml/badge.svg)
 [![Latest Stable Version](https://poser.pugx.org/microsoft/kiota-abstractions/version)](https://packagist.org/packages/microsoft/kiota-abstractions)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=microsoft_kiota-abstractions-php&metric=coverage)](https://sonarcloud.io/dashboard?id=microsoft_kiota-abstractions-php)
 
