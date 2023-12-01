@@ -1,6 +1,6 @@
 # Kiota Abstractions Library for PHP
 
-[![Build Status](https://travis-ci.org/microsoft/kiota-abstractions-php.svg?branch=main)](https://travis-ci.org/microsoft/kiota-abstractions-php)
+![Build Status](https://github.com/microsoft/kiota-abstractions-php/actions/workflows/pr-validation.yml/badge.svg)
 [![Latest Stable Version](https://poser.pugx.org/microsoft/kiota-abstractions/version)](https://packagist.org/packages/microsoft/kiota-abstractions)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=microsoft_kiota-abstractions-php&metric=coverage)](https://sonarcloud.io/dashboard?id=microsoft_kiota-abstractions-php)
 
@@ -16,7 +16,7 @@ run `composer require microsoft/kiota-abstractions` or add the following to your
 ```Shell
 {
     "require": {
-        "microsoft/kiota-abstractions": "^0.1.0"
+        "microsoft/kiota-abstractions": "^1.0.2"
     }
 }
 ```
