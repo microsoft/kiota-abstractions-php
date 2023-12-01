@@ -1,4 +1,4 @@
-name: PHP abstractions
+name: Build
 
 on:
   workflow_dispatch:
