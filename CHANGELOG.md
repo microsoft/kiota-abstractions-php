@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.0.2]
+
+### Changed
+- Excluded non-prod required files and directories from released package
+
 ## [1.0.1]
 
 ### Changed
