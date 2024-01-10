@@ -23,7 +23,7 @@
 	},
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"php-http/promise": "^1.2.0",
+		"php-http/promise": "~1.2.0",
 		"doctrine/annotations": "^1.13 || ^2.0",
 		"open-telemetry/sdk": "^1.0.0",
 		"ramsey/uuid": "^3 || ^4",
