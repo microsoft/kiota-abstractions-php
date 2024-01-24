@@ -11,7 +11,7 @@ class AllowedHostsValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $hosts = ["abc.com", "ABC.COM", "abc.com ", "https://abc.com", "http://abc.com"];
+        $hosts = ["abc.com", "ABC.COM", "abc.com "];
         $this->defaultValidator = new AllowedHostsValidator($hosts);
         parent::setUp();
     }
@@ -29,6 +29,16 @@ class AllowedHostsValidatorTest extends TestCase
         $validator->setAllowedHosts($hosts);
         $expected = ["abc.com"]; //duplicates should not be added to allowed hosts
         $this->assertEquals($expected, $validator->getAllowedHosts());
+    }
+
+    public function testShouldThrowException(): void
+    {
+        $hosts = ["https://abc.com "];
+        $this->expectException(\InvalidArgumentException::class);
+        $validator = new AllowedHostsValidator();
+        $validator->setAllowedHosts($hosts);
+        $expected = ["abc.com"]; //duplicates should not be added to allowed hosts
+
     }
 
     public function testIsUrlHostValidWithValidHost(): void

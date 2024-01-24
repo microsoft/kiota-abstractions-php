@@ -8,6 +8,8 @@
 
 namespace Microsoft\Kiota\Abstractions\Authentication;
 
+use InvalidArgumentException;
+
 /**
  * Class AllowedHostsValidator
  *
@@ -39,15 +41,12 @@ class AllowedHostsValidator
     public function setAllowedHosts(array $hosts): void
     {
         foreach ($hosts as $host) {
-            $newHost = $host;
-            if (str_starts_with($host, "https://")) {
-                $newHost = substr($host, 8);
-            } else if (str_starts_with($host, 'http://')) {
-                $newHost = substr($host, 7);
+            $host = strtolower(trim($host));
+            if (str_starts_with($host, "https://") || str_starts_with($host, 'http://')) {
+                throw new InvalidArgumentException("The host $host is not valid as it contains the scheme.");
             }
-            $newHost = strtolower(trim($newHost));
-            if (!array_key_exists($newHost, $this->allowedHosts)) {
-                $this->allowedHosts[$newHost] = true;
+            if (!array_key_exists($host, $this->allowedHosts)) {
+                $this->allowedHosts[$host] = true;
             }
         }
     }
