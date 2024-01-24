@@ -17,7 +17,11 @@ use Microsoft\Kiota\Abstractions\RequestInformation;
 interface AuthenticationProvider {
     /**
      * @param RequestInformation $request
-     * @return Promise
+     * @param array<string, mixed> $additionalAuthenticationContext
+     * @return Promise<RequestInformation>
      */
-    public function authenticateRequest(RequestInformation $request): Promise;
+    public function authenticateRequest(
+        RequestInformation $request,
+        array $additionalAuthenticationContext = []
+    ): Promise;
 }

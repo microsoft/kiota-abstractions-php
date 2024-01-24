@@ -6,6 +6,7 @@ use DateTime;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
+use OpenTelemetry\API\Trace\SpanInterface;
 use Psr\Http\Message\StreamInterface;
 
 /** Defines an interface for serialization of objects to a stream. */
@@ -56,9 +57,9 @@ interface SerializationWriter {
      * Writes the specified model object value to the stream with an optional given key.
      * @param string|null $key the key to write the value with.
      * @param Parsable|null $value the value to write to the stream.
-     * @param Parsable ...$additionalValuesToMerge additional Parsable values to merge.
+     * @param Parsable|null ...$additionalValuesToMerge additional Parsable values to merge.
      */
-    public function writeObjectValue(?string $key, ?Parsable $value, Parsable ...$additionalValuesToMerge): void;
+    public function writeObjectValue(?string $key, ?Parsable $value, ?Parsable ...$additionalValuesToMerge): void;
 
     /**
      * Gets the value of the serialized content.

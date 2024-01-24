@@ -18,20 +18,25 @@
     },
 	"autoload-dev": {
 		"psr-4": {
-		"Microsoft\\Kiota\\Abstractions\\": "src/",
-		"Microsoft\\Kiota\\Abstractions\\Tests\\": "tests/"
+			"Microsoft\\Kiota\\Abstractions\\Tests\\": "tests/"
 		}
 	},
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"php-http/promise": "^1.1.0",
-		"php-http/message-factory": "^1.0.2",
-		"league/uri": "^6.5",
+		"php-http/promise": "~1.2.0",
 		"doctrine/annotations": "^1.13 || ^2.0",
-		"ramsey/uuid": "^3 || ^4"
+		"open-telemetry/sdk": "^1.0.0",
+		"ramsey/uuid": "^3 || ^4",
+		"stduritemplate/stduritemplate": "^0.0.48 || ^0.0.49",
+		"psr/http-message": "^1.1 || ^2.0"
 	},
     "require-dev": {
       "phpstan/phpstan": "^1.2.0",
       "phpunit/phpunit": "^8.5.5 || ^9.3.5"
+    },
+	"config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     }
 }

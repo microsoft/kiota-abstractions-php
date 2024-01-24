@@ -89,6 +89,17 @@ class RequestHeadersTest extends TestCase
         $this->assertEquals(["value", "value2", "VALUE2"], $headers->get($key));
     }
 
+    public function testCanTryAdd(): void
+    {
+        $headers = new RequestHeaders();
+        $key = "key";
+        $this->assertTrue($headers->tryAdd($key, "value"));
+        $this->assertEquals(["value"], $headers->get($key));
+
+        $this->assertFalse($headers->tryAdd($key, "value2"));
+        $this->assertEquals(["value"], $headers->get($key));
+    }
+
     public function testCanPutAll(): void
     {
         $headers = new RequestHeaders();

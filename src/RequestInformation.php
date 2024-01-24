@@ -6,17 +6,18 @@ use DateTimeInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
-use League\Uri\Contracts\UriException;
-use League\Uri\UriTemplate;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\API\Trace\TracerInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use StdUriTemplate\StdUriTemplate;
 
 class RequestInformation {
     /** @var string $RAW_URL_KEY */
     public static string $RAW_URL_KEY = 'request-raw-url';
     /** @var string $urlTemplate The url template for the current request */
-    public string $urlTemplate;
+    public string $urlTemplate = '';
     /**
      * The path parameters for the current request
      * @var array<string,mixed> $pathParameters
@@ -39,20 +40,30 @@ class RequestInformation {
     private array $requestOptions = [];
     /** @var string $binaryContentType */
     private static string $binaryContentType = 'application/octet-stream';
-    /** @var string $contentTypeHeader */
+    /** @var non-empty-string $contentTypeHeader */
     public static string $contentTypeHeader = 'Content-Type';
     private static AnnotationReader $annotationReader;
-
-    public function __construct()
+    /**
+     * @var ObservabilityOptions $observabilityOptions
+     */
+    private ObservabilityOptions $observabilityOptions;
+    /** @var TracerInterface $tracer */
+    private TracerInterface $tracer;
+    /**
+     * @param ObservabilityOptions|null $observabilityOptions
+     */
+    public function __construct(?ObservabilityOptions $observabilityOptions = null)
     {
         $this->headers = new RequestHeaders();
+        $this->observabilityOptions = $observabilityOptions ?? new ObservabilityOptions();
+        $this->tracer = $this->observabilityOptions::getTracer();
         // Init annotation utils
         self::$annotationReader = new AnnotationReader();
     }
 
     /** Gets the URI of the request.
      * @return string
-     * @throws UriException
+     * @throws InvalidArgumentException
      */
     public function getUri(): string {
         if (!empty($this->uri)) {
@@ -62,7 +73,6 @@ class RequestInformation {
             && is_string($this->pathParameters[self::$RAW_URL_KEY])) {
             $this->setUri($this->pathParameters[self::$RAW_URL_KEY]);
         } else {
-            $template = new UriTemplate($this->urlTemplate);
             if (substr_count(strtolower($this->urlTemplate), '{+baseurl}') > 0 && !isset($this->pathParameters['baseurl'])) {
                 throw new InvalidArgumentException('"PathParameters must contain a value for "baseurl" for the url to be built.');
             }
@@ -76,7 +86,7 @@ class RequestInformation {
             }
             $params = array_merge($this->pathParameters, $this->queryParameters);
 
-            return $template->expand($params);
+            return StdUriTemplate::expand($this->urlTemplate, $params);
         }
         return $this->uri;
     }
@@ -138,10 +148,14 @@ class RequestInformation {
     /**
      * Sets the request body to be a binary stream.
      * @param StreamInterface $value the binary stream
+     * @param string $contentType the content type of the stream
      */
-    public function setStreamContent(StreamInterface $value): void {
+    public function setStreamContent(StreamInterface $value, string $contentType = 'application/octet-stream'): void {
+        if (empty(trim($contentType))) {
+            $contentType = self::$binaryContentType;
+        }
         $this->content = $value;
-        $this->headers->add(self::$contentTypeHeader, self::$binaryContentType);
+        $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
     }
 
     /**
@@ -152,13 +166,24 @@ class RequestInformation {
      * @param Parsable $value the models.
      */
     public function setContentFromParsable(RequestAdapter $requestAdapter, string $contentType, Parsable $value): void {
+        $span = $this->tracer->spanBuilder('setContentFromParsable')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeObjectValue(null, $value);
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex = new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -172,13 +197,23 @@ class RequestInformation {
      */
     public function setContentFromParsableCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void
     {
+        $span = $this->tracer->spanBuilder('setContentFromParsableCollection')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeCollectionOfObjectValues(null, $values);
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $span->setAttribute(self::$contentTypeHeader, $contentType);
+            if (!empty($values)) {
+                $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($values[0]));
+            }
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
         } catch (Exception $exception) {
             throw new RuntimeException('could not serialize payload.', 1, $exception);
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -191,13 +226,25 @@ class RequestInformation {
      * @return void
      */
     public function setContentFromScalar(RequestAdapter $requestAdapter, string $contentType, $value): void {
+        $span = $this->tracer->spanBuilder('setContentFromScalar')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeAnyValue(null, $value);
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $span->setAttribute(self::$contentTypeHeader, $contentType);
+            $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($value));
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex =  new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -210,13 +257,27 @@ class RequestInformation {
      * @return void
      */
     public function setContentFromScalarCollection(RequestAdapter $requestAdapter, string $contentType, array $values): void {
+        $span = $this->tracer->spanBuilder('setContentFromScalarCollection')
+            ->startSpan();
+        $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
             $writer->writeCollectionOfPrimitiveValues(null, $values);
-            $this->headers->add(self::$contentTypeHeader, $contentType);
+            $span->setAttribute(self::$contentTypeHeader, $contentType);
+            if (!empty($values)) {
+                $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, gettype($values[0]));
+            }
+            $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
             $this->content = $writer->getSerializedContent();
+            $span->setStatus(StatusCode::STATUS_OK);
         } catch (Exception $exception) {
-            throw new RuntimeException('could not serialize payload.', 1, $exception);
+            $ex = new RuntimeException('could not serialize payload.', 1, $exception);
+            $span->recordException($ex);
+            $span->setStatus(StatusCode::STATUS_ERROR);
+            throw $ex;
+        } finally {
+            $scope->detach();
+            $span->end();
         }
     }
 
@@ -295,5 +356,16 @@ class RequestInformation {
     public function addHeader(string $key, string $value): void
     {
         $this->headers->add($key, $value);
+    }
+
+    /**
+     * Try to add a key/value element to the headers if it is not already set.
+     * @param string $key
+     * @param string $value
+     * @return bool if the value have been added
+     */
+    public function tryAddHeader(string $key, string $value): bool
+    {
+        return $this->headers->tryAdd($key, $value);
     }
 }

@@ -4,7 +4,6 @@ namespace Microsoft\Kiota\Abstractions\Tests;
 use DateTime;
 use DateTimeZone;
 use InvalidArgumentException;
-use League\Uri\Contracts\UriException;
 use Microsoft\Kiota\Abstractions\HttpMethod;
 use Microsoft\Kiota\Abstractions\RequestInformation;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +17,7 @@ class RequestInformationTest extends TestCase {
     }
 
     /**
-     * @throws UriException
+     * @throws InvalidArgumentException
      */
     public function testSetUri(): void{
         $pathParameters = [
@@ -33,7 +32,7 @@ class RequestInformationTest extends TestCase {
     }
 
     /**
-     * @throws UriException
+     * @throws InvalidArgumentException
      */
     public function testSetQueryParameters(): void {
         $this->requestInformation->urlTemplate = '{?%24select,top,%24count}';
@@ -52,7 +51,7 @@ class RequestInformationTest extends TestCase {
     }
 
     /**
-     * @throws UriException
+     * @throws InvalidArgumentException
      */
     public function testWillThrowExceptionWhenNoBaseUrl(): void {
         $this->expectException(InvalidArgumentException::class);
@@ -67,7 +66,8 @@ class RequestInformationTest extends TestCase {
     }
 
     /**
-     * @throws UriException
+     * @throws InvalidArgumentException
+     * @throws \Exception
      */
     public function testPathParametersOfDateTimeOffsetType(): void
     {
@@ -77,35 +77,50 @@ class RequestInformationTest extends TestCase {
         $requestInfo->urlTemplate = "https://localhost/getDirectRoutingCalls(fromDateTime='{fromDateTime}',toDateTime='{toDateTime}')";
 
         // Act
-        $fromDateTime  =new DateTime();
-        $fromDateTime->setDate(2022, 8, 1);
-        $fromDateTime->setTime(0,0);
-        $fromDateTime->setTimezone(new DateTimeZone('+00:00'));
-        $toDateTime  =new DateTime();
-        $toDateTime->setDate(2022, 8, 2);
-        $toDateTime->setTime(0,0);
-        $toDateTime->setTimezone(new DateTimeZone('+00:00'));
+        $fromDateTime  =new DateTime("2022-08-01T2:33", new DateTimeZone('+02:00'));
+        $toDateTime  =new DateTime('2022-08-02T10:00', new DateTimeZone('-1:00'));
         $requestInfo->pathParameters["fromDateTime"] = $fromDateTime;
         $requestInfo->pathParameters["toDateTime"] =  $toDateTime;
 
         // Assert
         $uri = $requestInfo->getUri();
-        $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01T00%3A00%3A00%2B00%3A00',toDateTime='2022-08-02T00%3A00%3A00%2B00%3A00')", $uri);
+        $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01T02%3A33%3A00%2B02%3A00',toDateTime='2022-08-02T10%3A00%3A00-01%3A00')", $uri);
     }
 
-    /**
-     * @throws UriException
-     */
     public function testCanHandleBooleanTypes(): void {
         // Arrange as the request builders would
         $requestInfo = new RequestInformation();
         $requestInfo->httpMethod = HttpMethod::GET;
-        $requestInfo->urlTemplate = "http://localhost/users{?%24count}";
+        $requestInfo->urlTemplate = "http://localhost/users{?%24exists}";
 
-        $requestInfo->setPathParameters(['%24count' => true]);
+        $requestInfo->setPathParameters(['%24exists' => true]);
         // Assert
         $uri = $requestInfo->getUri();
-        $this->assertEquals('http://localhost/users?%24count=1', $uri);
+        $this->assertEquals('http://localhost/users?%24exists=true', $uri);
+    }
+
+    public function testCanHandleNumericTypes(): void {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "{+baseurl}/users{?%24count}";
+
+        $requestInfo->setPathParameters(['%24count' => true, 'baseurl' => 'http://localhost']);
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals('http://localhost/users?%24count=true', $uri);
+    }
+
+    public function testExposeTryAddRequestHeader(): void {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+
+        // Assert
+        $this->assertTrue($requestInfo->tryAddHeader("key", "value1"));
+        $this->assertFalse($requestInfo->tryAddHeader("key", "value2"));
+        $res = $requestInfo->getHeaders()->get("key");
+        $this->assertEquals(1, count($res));
+        $this->assertEquals("value1", $res[0]);
     }
 }
 
