@@ -11,7 +11,7 @@ class AllowedHostsValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $hosts = ["abc.com", "ABC.COM", "abc.com "];
+        $hosts = ["abc.com", "ABC.COM", "abc.com ", "https://abc.com", "http://abc.com"];
         $this->defaultValidator = new AllowedHostsValidator($hosts);
         parent::setUp();
     }

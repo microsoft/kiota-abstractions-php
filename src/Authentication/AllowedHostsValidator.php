@@ -39,9 +39,15 @@ class AllowedHostsValidator
     public function setAllowedHosts(array $hosts): void
     {
         foreach ($hosts as $host) {
-            $host = strtolower(trim($host));
-            if (!array_key_exists($host, $this->allowedHosts)) {
-                $this->allowedHosts[$host] = true;
+            $newHost = $host;
+            if (str_starts_with($host, "https://")) {
+                $newHost = substr($host, 8);
+            } else if (str_starts_with($host, 'http://')) {
+                $newHost = substr($host, 7);
+            }
+            $newHost = strtolower(trim($newHost));
+            if (!array_key_exists($newHost, $this->allowedHosts)) {
+                $this->allowedHosts[$newHost] = true;
             }
         }
     }
