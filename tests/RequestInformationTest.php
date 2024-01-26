@@ -42,10 +42,10 @@ class RequestInformationTest extends TestCase {
         $queryParam->enum = [new TestEnum('a'), new TestEnum('b')];
         $this->requestInformation->setQueryParameters($queryParam);
         $this->assertEquals('?top=10&enum=a,b', $this->requestInformation->getUri());
-        $this->assertTrue(sizeof($this->requestInformation->queryParameters) == 2);
+        $this->assertEquals(2, sizeof($this->requestInformation->queryParameters));
         $queryParam->select = ['displayName', 'age'];
         $this->requestInformation->setQueryParameters($queryParam);
-        $this->assertTrue(sizeof($this->requestInformation->queryParameters) == 3);
+        $this->assertEquals(3, sizeof($this->requestInformation->queryParameters));
         $this->assertArrayHasKey('%24select', $this->requestInformation->queryParameters);
         $this->assertEquals(['displayName', 'age'], $this->requestInformation->queryParameters['%24select']);
         $this->assertArrayHasKey('top', $this->requestInformation->queryParameters);
