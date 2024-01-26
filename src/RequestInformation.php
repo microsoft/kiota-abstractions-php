@@ -102,10 +102,8 @@ class RequestInformation {
         if (is_object($value) && is_subclass_of($value, Enum::class)) {
             return $value->value();
         }
-        if (is_array($value)) {
-            return array_map(fn ($x) => $this->sanitizeValue($x), $value);
-        }
-        return $value;
+        return is_array($value) ?
+            array_map(fn ($x) => $this->sanitizeValue($x), $value) : $value;
     }
 
     /**
