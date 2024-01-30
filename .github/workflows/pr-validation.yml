@@ -22,16 +22,28 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup PHP and Xdebug for Code Coverage report
         uses: shivammathur/setup-php@v2
+        if: ${{ matrix.php-versions == '8.0' }}
         with:
           php-version: ${{ matrix.php-versions }}
           coverage: xdebug
+      - name: Setup PHP without Xdebug
+        uses: shivammathur/setup-php@v2
+        if: ${{ matrix.php-versions != '8.0' }}
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: none
       - name: Install dependencies
         run: composer install
       - name: Run static analysis
         run: ./vendor/bin/phpstan
-      - name: Run tests
+      - name: Run tests without coverage
+        if: ${{ matrix.php-versions != '8.0' }}
+        run: ./vendor/bin/phpunit
+      - name: Run tests with coverage
+        if: ${{ matrix.php-versions == '8.0' }}
         run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
       - name: Fix code coverage paths
+        if: ${{ matrix.php-versions == '8.0' }}
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
       - name: SonarCloud Scan
         if: ${{ matrix.php-versions == '8.0' && !github.event.pull_request.head.repo.fork }}
