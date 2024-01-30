@@ -99,7 +99,11 @@ class RequestInformation {
         if (is_object($value) && is_a($value, DateTime::class)) {
             return $value->format(DateTimeInterface::ATOM);
         }
-        return $value;
+        if (is_object($value) && is_subclass_of($value, Enum::class)) {
+            return $value->value();
+        }
+        return is_array($value) ?
+            array_map(fn ($x) => $this->sanitizeValue($x), $value) : $value;
     }
 
     /**
