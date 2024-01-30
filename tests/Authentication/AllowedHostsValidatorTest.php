@@ -31,6 +31,16 @@ class AllowedHostsValidatorTest extends TestCase
         $this->assertEquals($expected, $validator->getAllowedHosts());
     }
 
+    public function testShouldThrowException(): void
+    {
+        $hosts = ["https://abc.com "];
+        $this->expectException(\InvalidArgumentException::class);
+        $validator = new AllowedHostsValidator();
+        $validator->setAllowedHosts($hosts);
+        $expected = ["abc.com"]; //duplicates should not be added to allowed hosts
+
+    }
+
     public function testIsUrlHostValidWithValidHost(): void
     {
         $this->assertTrue($this->defaultValidator->isUrlHostValid("https://abc.com"));
