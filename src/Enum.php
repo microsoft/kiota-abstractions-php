@@ -72,7 +72,8 @@ abstract class Enum
         if (!is_string($value)) {
             throw new InvalidArgumentException('The value is expected to be a string type.');
         }
-        $array = self::toArray();
+        $array = array_values(self::toArray());
+
         $isList = self::isList($array);
         if (!$isList) {
             throw new RuntimeException('Expect all values for the enums to be of the same type.');
