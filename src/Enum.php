@@ -80,11 +80,12 @@ abstract class Enum
         if (count($array) > 0 && !is_string($array[0])) {
             throw new RuntimeException('Enum values should be strings only.');
         }
+        /** @phpstan-ignore-next-line  */
         return in_array(strtolower($value), array_map(fn ($item) => strtolower($item), self::toArray()), true);
     }
 
     /**
-     * @param array $values
+     * @param array<mixed> $values
      * @return bool
      */
     private static function isList(array $values): bool
