@@ -88,13 +88,17 @@ class MultiPartBody implements Parsable
 
     /**
      * @param SerializationWriter $writer
-     * @param $value
+     * @param array{string, T} $value
      * @return void
      */
 
-    public function writeParsable(SerializationWriter $writer, $value): void
+    public function writeParsable(SerializationWriter $writer, array $value): void
     {
-
+        $partWriter = $this->requestAdapter->getSerializationWriterFactory()->getSerializationWriter($value[0]);
+        $partWriter->writeObjectValue("", $value[1]);
+        $partContent = $partWriter->getSerializedContent();
+        $writer->writeBinaryContent('', $partContent);
+        $partContent->rewind();
     }
 
     private function addNewLine(SerializationWriter $writer): void
