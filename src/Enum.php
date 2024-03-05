@@ -67,7 +67,10 @@ abstract class Enum
      */
     public static function has($value): bool
     {
-        return in_array(strtolower($value), array_map(fn ($item) => strtolower($item), self::toArray()), true);
+        if (is_string($value)) {
+            throw new InvalidArgumentException('The value is expected to be a string type.');
+        }
+        return in_array(strtolower($value), array_map(fn ($item) => strtolower(strval($item)), self::toArray()), true);
     }
 
     /**
