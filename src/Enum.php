@@ -19,6 +19,8 @@ namespace Microsoft\Kiota\Abstractions;
 
 use InvalidArgumentException;
 use ReflectionException;
+use RuntimeException;
+use StdUriTemplate\StdUriTemplate;
 
 /**
  * Class Enum
@@ -71,14 +73,33 @@ abstract class Enum
             throw new InvalidArgumentException('The value is expected to be a string type.');
         }
         $array = self::toArray();
-        $isList = \stduritemplate\array_is_list($array);
+        $isList = self::isList($array);
         if (!$isList) {
-            throw new \RuntimeException('Expect all values for the enums to be of the same type.');
+            throw new RuntimeException('Expect all values for the enums to be of the same type.');
         }
         if (count($array) > 0 && !is_string($array[0])) {
-            throw new \RuntimeException('Enum values should be strings only.');
+            throw new RuntimeException('Enum values should be strings only.');
         }
         return in_array(strtolower($value), array_map(fn ($item) => strtolower($item), self::toArray()), true);
+    }
+
+    /**
+     * @param array $values
+     * @return bool
+     */
+    private static function isList(array $values): bool
+    {
+        if (count($values) === 1 || empty($values)) {
+            return true;
+        }
+        $types = [];
+        foreach ($values as $value) {
+            $types[gettype($value)] = true;
+        }
+        if (count(array_keys($types)) > 1) {
+            return false;
+        }
+        return true;
     }
 
     /**

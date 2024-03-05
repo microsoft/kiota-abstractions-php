@@ -113,8 +113,7 @@ class MultiPartBody implements Parsable
     /**
      * @param string $partName
      * @param string $contentType
-     * @template T of Parsable
-     * @param T $partValue
+     * @param mixed $partValue
      * @return void
      */
     public function addOrReplacePart(string $partName, string $contentType, $partValue): void
