@@ -9,12 +9,12 @@ use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
-/**
- * @template T
- */
 class MultiPartBody implements Parsable
 {
-    /** @var array<string, array{string, T}> */
+
+    /**
+     * @var array<string, array{string, mixed}>
+     */
     private array $parts = [];
 
     private string $boundary = '';
@@ -64,7 +64,7 @@ class MultiPartBody implements Parsable
             $writer->writeStringValue("Content-Disposition", "form-data; name=\"$partName\"");
             $this->addNewLine($writer);
             if ($partValue instanceof Parsable) {
-                $this->writeParsable($writer, $partValue);
+                $this->writeParsable($writer, $contentType, $partValue);
             }
             elseif (is_string($partValue)) {
                    $writer->writeStringValue("", $partValue);
@@ -88,14 +88,15 @@ class MultiPartBody implements Parsable
 
     /**
      * @param SerializationWriter $writer
-     * @param array{string, T} $value
+     * @param string $contentType
+     * @param Parsable $value
      * @return void
      */
 
-    public function writeParsable(SerializationWriter $writer, array $value): void
+    public function writeParsable(SerializationWriter $writer, string $contentType, Parsable $value): void
     {
-        $partWriter = $this->requestAdapter->getSerializationWriterFactory()->getSerializationWriter($value[0]);
-        $partWriter->writeObjectValue("", $value[1]);
+        $partWriter = $this->requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+        $partWriter->writeObjectValue("", $value);
         $partContent = $partWriter->getSerializedContent();
         $writer->writeBinaryContent('', $partContent);
         $partContent->rewind();
@@ -109,6 +110,7 @@ class MultiPartBody implements Parsable
     /**
      * @param string $partName
      * @param string $contentType
+     * @template T of Parsable
      * @param T $partValue
      * @return void
      */
@@ -122,7 +124,7 @@ class MultiPartBody implements Parsable
 
     /**
      * @param string $partName
-     * @return T|null
+     * @return mixed|null
      */
     public function getPartValue(string $partName)
     {
