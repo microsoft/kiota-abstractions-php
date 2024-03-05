@@ -70,7 +70,7 @@ class MultiPartBody implements Parsable
                    $writer->writeStringValue("", $partValue);
             }
             elseif ($partValue instanceof StreamInterface) {
-                $writer->writeBinaryContent("", $partValue->getContents());
+                $writer->writeBinaryContent("", $partValue);
                 $partValue->rewind();
             }
             elseif ($partValue instanceof Enum) {
