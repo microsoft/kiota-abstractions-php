@@ -2,11 +2,11 @@
 
 namespace Microsoft\Kiota\Abstractions;
 
+use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
 use Psr\Http\Message\StreamInterface;
-use Random\RandomException;
 use RuntimeException;
 
 /**
@@ -22,7 +22,7 @@ class MultiPartBody implements Parsable
     private ?RequestAdapter $requestAdapter = null;
 
     /**
-     * @throws RandomException
+     * @throws Exception
      */
     public function __construct()
     {
@@ -50,8 +50,6 @@ class MultiPartBody implements Parsable
      */
     public function serialize(SerializationWriter $writer): void
     {
-        $factory = $this->requestAdapter->getSerializationWriterFactory();
-
         $first = count($this->parts) > 0;
 
         foreach ($this->parts as $key => $value) {
