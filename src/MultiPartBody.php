@@ -95,6 +95,9 @@ class MultiPartBody implements Parsable
 
     public function writeParsable(SerializationWriter $writer, string $contentType, Parsable $value): void
     {
+        if ($this->requestAdapter === null) {
+            throw new RuntimeException('Request adapter cannot be null.');
+        }
         $partWriter = $this->requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
         $partWriter->writeObjectValue("", $value);
         $partContent = $partWriter->getSerializedContent();
