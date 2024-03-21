@@ -3,6 +3,7 @@
 namespace Microsoft\Kiota\Abstractions\Tests;
 use DateTime;
 use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\HttpMethod;
 use Microsoft\Kiota\Abstractions\RequestInformation;
@@ -67,7 +68,7 @@ class RequestInformationTest extends TestCase {
 
     /**
      * @throws InvalidArgumentException
-     * @throws \Exception
+     * @throws Exception
      */
     public function testPathParametersOfDateTimeOffsetType(): void
     {

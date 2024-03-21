@@ -171,6 +171,12 @@ class RequestInformation {
         $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+
+            if (is_a($value, MultiPartBody::class)) {
+                $contentType = "$contentType; boundary={$value->getBoundary()}";
+                $value->setRequestAdapter($requestAdapter);
+            }
+
             $writer->writeObjectValue(null, $value);
             $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
             $this->headers->tryAdd(self::$contentTypeHeader, $contentType);

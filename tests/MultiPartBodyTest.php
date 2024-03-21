@@ -8,40 +8,36 @@ use PHPUnit\Framework\TestCase;
 class MultiPartBodyTest extends TestCase
 {
 
-    public function testAddOrReplacePart()
+    public function testAddOrReplacePart(): void
     {
+        $mpBody = new MultiPartBody();
+        $mpBody->addOrReplacePart('hello', 'text/plain', 'Hello world');
+        $this->assertEquals('Hello world', $mpBody->getPartValue('hello'));
+        $mpBody->addOrReplacePart('hello', 'text/plain', 'Second Hello World');
+        $this->assertEquals('Second Hello World', $mpBody->getPartValue('hello'));
     }
 
-    public function testSetRequestAdapter()
+    public function testGetPartValue(): void
     {
-
+        $mpBody = new MultiPartBody();
+        $mpBody->addOrReplacePart('hello', 'text/plain', 'Hello world');
+        $mpBody->addOrReplacePart('hello2', 'text/plain', 29102);
+        $this->assertEquals('Hello world', $mpBody->getPartValue('hello'));
+        $this->assertEquals(29102, $mpBody->getPartValue('hello2'));
     }
 
-    public function testGetPartValue()
+    public function testRemovePart(): void
     {
-        $mpbody = new MultiPartBody();
-        $mpbody->addOrReplacePart('hello', 'text/plain', 'Hello world');
-        $mpbody->addOrReplacePart('hello2', 'text/plain', 29102);
-        $this->assertEquals('Hello world', $mpbody->getPartValue('hello'));
-        $this->assertEquals(29102, $mpbody->getPartValue('hello2'));
+        $mpBody = new MultiPartBody();
+        $mpBody->addOrReplacePart('hello', 'text/plain', 'Hello world');
+        $mpBody->addOrReplacePart('hello2', 'text/plain', 29102);
+        $this->assertEquals('Hello world', $mpBody->getPartValue('hello'));
+        $mpBody->removePart('hello');
+        $this->assertNull($mpBody->getPartValue('hello'));
     }
-
-    public function testRemovePart()
+    public function testGetFieldDeserializers(): void
     {
-        $mpbody = new MultiPartBody();
-        $mpbody->addOrReplacePart('hello', 'text/plain', 'Hello world');
-        $mpbody->addOrReplacePart('hello2', 'text/plain', 29102);
-        $this->assertEquals('Hello world', $mpbody->getPartValue('hello'));
-        $mpbody->removePart('hello');
-        $this->assertEquals(null, $mpbody->getPartValue('hello'));
-    }
-
-    public function testSerialize()
-    {
-    }
-
-    public function testGetFieldDeserializers()
-    {
-
+        $mpBody = new MultiPartBody();
+        $this->assertEmpty($mpBody->getFieldDeserializers());
     }
 }

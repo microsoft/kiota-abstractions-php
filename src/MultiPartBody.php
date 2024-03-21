@@ -17,7 +17,7 @@ class MultiPartBody implements Parsable
      */
     private array $parts = [];
 
-    private string $boundary = '';
+    private string $boundary;
 
     private ?RequestAdapter $requestAdapter = null;
 
@@ -72,9 +72,6 @@ class MultiPartBody implements Parsable
             elseif ($partValue instanceof StreamInterface) {
                 $writer->writeBinaryContent("", $partValue);
                 $partValue->rewind();
-            }
-            elseif ($partValue instanceof Enum) {
-                $writer->writeEnumValue("", $partValue);
             }
             else {
                 $type = gettype($partValue);
@@ -140,5 +137,13 @@ class MultiPartBody implements Parsable
             return true;
         }
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBoundary(): string
+    {
+        return $this->boundary;
     }
 }
