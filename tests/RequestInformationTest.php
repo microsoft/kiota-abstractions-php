@@ -5,6 +5,7 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
+use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\HttpMethod;
 use Microsoft\Kiota\Abstractions\RequestInformation;
 use PHPUnit\Framework\TestCase;
@@ -36,19 +37,20 @@ class RequestInformationTest extends TestCase {
      * @throws InvalidArgumentException
      */
     public function testSetQueryParameters(): void {
-        $this->requestInformation->urlTemplate = '{?%24select,top,%24count}';
+        $this->requestInformation->urlTemplate = '{?%24select,top,%24count,enum}';
 
         $queryParam = new TestQueryParameter();
+        $queryParam->enum = [new TestEnum('a'), new TestEnum('b')];
         $this->requestInformation->setQueryParameters($queryParam);
-        $this->assertEquals('?top=10', $this->requestInformation->getUri());
-        $this->assertTrue(sizeof($this->requestInformation->queryParameters) == 1);
+        $this->assertEquals('?top=10&enum=a,b', $this->requestInformation->getUri());
+        $this->assertEquals(2, sizeof($this->requestInformation->queryParameters));
         $queryParam->select = ['displayName', 'age'];
         $this->requestInformation->setQueryParameters($queryParam);
-        $this->assertTrue(sizeof($this->requestInformation->queryParameters) == 2);
+        $this->assertEquals(3, sizeof($this->requestInformation->queryParameters));
         $this->assertArrayHasKey('%24select', $this->requestInformation->queryParameters);
         $this->assertEquals(['displayName', 'age'], $this->requestInformation->queryParameters['%24select']);
         $this->assertArrayHasKey('top', $this->requestInformation->queryParameters);
-        $this->assertEquals('?%24select=displayName,age&top=10', $this->requestInformation->getUri());
+        $this->assertEquals('?%24select=displayName,age&top=10&enum=a,b', $this->requestInformation->getUri());
     }
 
     /**
@@ -79,7 +81,7 @@ class RequestInformationTest extends TestCase {
 
         // Act
         $fromDateTime  =new DateTime("2022-08-01T2:33", new DateTimeZone('+02:00'));
-        $toDateTime  =new DateTime('2022-08-02T10:00', new DateTimeZone('-1:00'));
+        $toDateTime  = new DateTime('2022-08-02T10:00', new DateTimeZone('-1:00'));
         $requestInfo->pathParameters["fromDateTime"] = $fromDateTime;
         $requestInfo->pathParameters["toDateTime"] =  $toDateTime;
 
@@ -133,4 +135,11 @@ class TestQueryParameter {
     public ?array $select = null;
     public bool $count = false;
     public int $top = 10; // no annotation
+    /** @var array<TestEnum>|null */
+    public ?array $enum = null;
+}
+
+class TestEnum extends Enum {
+    public const A = "a";
+    public const B = "b";
 }
