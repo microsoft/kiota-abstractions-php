@@ -16,7 +16,7 @@ run `composer require microsoft/kiota-abstractions` or add the following to your
 ```Shell
 {
     "require": {
-        "microsoft/kiota-abstractions": "^1.0.2"
+        "microsoft/kiota-abstractions": "^1.2.0"
     }
 }
 ```
