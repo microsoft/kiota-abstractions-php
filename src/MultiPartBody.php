@@ -6,6 +6,7 @@ use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
 use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
+use Microsoft\Kiota\Serialization\Multipart\MultipartSerializationWriter;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
@@ -26,7 +27,7 @@ class MultiPartBody implements Parsable
      */
     public function __construct()
     {
-        $this->boundary = random_bytes(32);
+        $this->boundary = bin2hex(random_bytes(32));
     }
 
     /**
