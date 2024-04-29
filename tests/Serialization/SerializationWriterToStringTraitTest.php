@@ -28,9 +28,9 @@ class SerializationWriterToStringTraitTest extends TestCase
         $serializationWriter = new class {
             use SerializationWriterToStringTrait;
         };
-        $dateTime = new DateTime('2024-04-29T15');
+        $dateTime = new DateTime('2024-04-29T15:12');
         $dateTimeString = $serializationWriter->getDateTimeValueAsString($dateTime);
-        $this->assertEquals('2024-04-29T15:00:00+00:00', $dateTimeString);
+        $this->assertEquals('2024-04-29T15:12:00+00:00', $dateTimeString);
     }
 
     public function testGetBooleanValueAsString(): void
