@@ -33,7 +33,7 @@ trait SerializationWriterToStringTrait
         return $value ? 'true' : 'false';
     }
 
-    public function getEscapedString(string $value): string
+    public function getStringValueAsEscapedString(string $value): string
     {
         return addcslashes($value, "\\\r\n\"\t");
     }

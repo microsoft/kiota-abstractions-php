@@ -44,4 +44,14 @@ class SerializationWriterToStringTraitTest extends TestCase
         $booleanValue = $serializationWriter->getBooleanValueAsString(false);
         $this->assertEquals('false', $booleanValue);
     }
+
+    public function testGetEscapedValueAsEscapedString(): void
+    {
+        $serializationWriter = new class {
+            use SerializationWriterToStringTrait;
+        };
+        $originalString = 'Kenneth\n\Hello world';
+        $escapedString = $serializationWriter->getStringValueAsEscapedString($originalString);
+        $this->assertEquals('Kenneth\\\n\\\Hello world', $escapedString);
+    }
 }
