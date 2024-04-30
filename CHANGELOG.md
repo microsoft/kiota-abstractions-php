@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+## [1.3.0]
+
+### Added
 - Provide helper traits for dealing with DateIntervals, booleans and DateTime. [#133](https://github.com/microsoft/kiota-abstractions-php/pull/133)
 
 ### Changed
