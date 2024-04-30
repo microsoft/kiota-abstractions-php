@@ -15,7 +15,7 @@ class ParseNodeTraitTest extends TestCase
         {
             use ParseNodeFromStringTrait;
         };
-        $value = $parseNode->getDateIntervalFromString('-P1DT23H59M19S');
+        $value = $parseNode->parseDateIntervalFromString('-P1DT23H59M19S');
         $dateInterval = new DateInterval('P1DT23H59M19S');
         $dateInterval->invert = 1;
 
@@ -27,7 +27,7 @@ class ParseNodeTraitTest extends TestCase
         {
             use ParseNodeFromStringTrait;
         };
-        $value = $parseNode->getDateIntervalFromString('P1DT23H59M19S');
+        $value = $parseNode->parseDateIntervalFromString('P1DT23H59M19S');
         $dateInterval = new DateInterval('P1DT23H59M19S');
 
         $this->assertEquals($dateInterval, $value);
