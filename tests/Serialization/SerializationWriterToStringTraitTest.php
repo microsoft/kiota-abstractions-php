@@ -12,7 +12,7 @@ class SerializationWriterToStringTraitTest extends TestCase
     public function testGetDateIntervalValueAsString(): void
     {
         $serializationWriter = new class {
-            use SerializationWriterToStringTrait;
+            use SerializationWriterToStringTrait {getDateIntervalValueAsString as public;}
         };
         $dateInterval = new DateInterval('P1D');
         $dateInterval->invert = 1;
@@ -26,7 +26,7 @@ class SerializationWriterToStringTraitTest extends TestCase
     public function testGetDateTimeValueAsString(): void
     {
         $serializationWriter = new class {
-            use SerializationWriterToStringTrait;
+            use SerializationWriterToStringTrait {getDateTimeValueAsString as public;}
         };
         $dateTime = new DateTime('2024-04-29T15:12');
         $dateTimeString = $serializationWriter->getDateTimeValueAsString($dateTime);
@@ -36,7 +36,7 @@ class SerializationWriterToStringTraitTest extends TestCase
     public function testGetBooleanValueAsString(): void
     {
         $serializationWriter = new class {
-            use SerializationWriterToStringTrait;
+            use SerializationWriterToStringTrait {getBooleanValueAsString as public;}
         };
 
         $booleanValue = $serializationWriter->getBooleanValueAsString(true);
@@ -48,7 +48,7 @@ class SerializationWriterToStringTraitTest extends TestCase
     public function testGetEscapedValueAsEscapedString(): void
     {
         $serializationWriter = new class {
-            use SerializationWriterToStringTrait;
+            use SerializationWriterToStringTrait {getStringValueAsEscapedString as public;}
         };
         $originalString = 'Kenneth\n\Hello world';
         $escapedString = $serializationWriter->getStringValueAsEscapedString($originalString);
