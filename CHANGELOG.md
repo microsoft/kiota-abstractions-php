@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.3.1]
+
+### Added
+- Changed method visibility in the serialization helper traits to Private. [#134](https://github.com/microsoft/kiota-abstractions-php/pull/134)
+
+### Changed
+
 ## [1.3.0]
 
 ### Added
