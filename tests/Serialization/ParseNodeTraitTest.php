@@ -13,7 +13,7 @@ class ParseNodeTraitTest extends TestCase
     {
         $parseNode = new class
         {
-            use ParseNodeFromStringTrait;
+            use ParseNodeFromStringTrait {parseDateIntervalFromString as public;}
         };
         $value = $parseNode->parseDateIntervalFromString('-P1DT23H59M19S');
         $dateInterval = new DateInterval('P1DT23H59M19S');
@@ -25,7 +25,7 @@ class ParseNodeTraitTest extends TestCase
     {
         $parseNode = new class
         {
-            use ParseNodeFromStringTrait;
+            use ParseNodeFromStringTrait {parseDateIntervalFromString as public;}
         };
         $value = $parseNode->parseDateIntervalFromString('P1DT23H59M19S');
         $dateInterval = new DateInterval('P1DT23H59M19S');
