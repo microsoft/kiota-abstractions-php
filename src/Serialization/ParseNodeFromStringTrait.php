@@ -14,7 +14,7 @@ trait ParseNodeFromStringTrait
     /**
      * @throws Exception
      */
-    public function parseDateIntervalFromString(string $value): DateInterval
+    private function parseDateIntervalFromString(string $value): DateInterval
     {
         $negativeValPosition = strpos($value, '-');
         $invert = 0;

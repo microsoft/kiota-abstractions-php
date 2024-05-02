@@ -11,7 +11,7 @@ use DateTimeInterface;
  */
 trait SerializationWriterToStringTrait
 {
-    public function getDateIntervalValueAsString(DateInterval $value): string
+    private function getDateIntervalValueAsString(DateInterval $value): string
     {
         $year = $value->y > 0 ? "%yY" : "";
         $month = $value->m > 0 ? "%mM" : "";
@@ -23,17 +23,17 @@ trait SerializationWriterToStringTrait
         $time = !empty($timePart) ? "T$timePart" : '';
         return $value->format("%rP$year$month{$day}$time");
     }
-    public function getDateTimeValueAsString(DateTime $value): string
+    private function getDateTimeValueAsString(DateTime $value): string
     {
         return $value->format(DateTimeInterface::RFC3339);
     }
 
-    public function getBooleanValueAsString(bool $value): string
+    private function getBooleanValueAsString(bool $value): string
     {
         return $value ? 'true' : 'false';
     }
 
-    public function getStringValueAsEscapedString(string $value): string
+    private function getStringValueAsEscapedString(string $value): string
     {
         return addcslashes($value, "\\\r\n\"\t");
     }
