@@ -18,6 +18,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.3.1]
+
+### Added
+
+### Changed
+- Changed method visibility in the serialization helper traits to Private. [#134](https://github.com/microsoft/kiota-abstractions-php/pull/134)
+
+## [1.3.0]
+
+### Added
+- Provide helper traits for dealing with DateIntervals, booleans and DateTime. [#133](https://github.com/microsoft/kiota-abstractions-php/pull/133)
+
+### Changed
+
+## [1.2.0]
+
+### Added
+- Add support for multipart request body. [#132](https://github.com/microsoft/kiota-abstractions-php/pull/132)
+
+### Changed
+
+## [1.1.0]
+
+### Added
+ - Update stduritemplate/stduritemplate requirement from ^0.0.48 to ^0.0.48 || ^0.0.49 [#118](https://github.com/microsoft/kiota-abstractions-php/pull/118)
+ - Fix the promise dependency to promises v1.2 [#121](https://github.com/microsoft/kiota-abstractions-php/pull/121)
+### Changed
+
 ## [1.0.2]
 
 ### Changed

@@ -99,7 +99,11 @@ class RequestInformation {
         if (is_object($value) && is_a($value, DateTime::class)) {
             return $value->format(DateTimeInterface::ATOM);
         }
-        return $value;
+        if (is_object($value) && is_subclass_of($value, Enum::class)) {
+            return $value->value();
+        }
+        return is_array($value) ?
+            array_map(fn ($x) => $this->sanitizeValue($x), $value) : $value;
     }
 
     /**
@@ -171,6 +175,12 @@ class RequestInformation {
         $scope = $span->activate();
         try {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
+
+            if (is_a($value, MultiPartBody::class)) {
+                $contentType = "$contentType; boundary={$value->getBoundary()}";
+                $value->setRequestAdapter($requestAdapter);
+            }
+
             $writer->writeObjectValue(null, $value);
             $span->setAttribute(ObservabilityOptions::REQUEST_TYPE_KEY, get_class($value));
             $this->headers->tryAdd(self::$contentTypeHeader, $contentType);
