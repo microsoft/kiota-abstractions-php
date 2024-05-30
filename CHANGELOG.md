@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.4.0]
+
+### Added
+- Add interface for ComposedTypeWrapper for marking composed types.
+
+### Changed
+
 ## [1.3.1]
 
 ### Added
