@@ -7,6 +7,8 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use Microsoft\Kiota\Abstractions\Types\Date;
+use Microsoft\Kiota\Abstractions\Types\Time;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\API\Trace\TracerInterface;
 use Psr\Http\Message\StreamInterface;
@@ -98,6 +100,12 @@ class RequestInformation {
     private function sanitizeValue($value) {
         if (is_object($value) && is_a($value, DateTime::class)) {
             return $value->format(DateTimeInterface::ATOM);
+        }
+        if (is_object($value) && is_a($value, Date::class)) {
+            return $value->__toString();
+        }
+        if (is_object($value) && is_a($value, Time::class)) {
+            return $value->__toString();
         }
         if (is_object($value) && is_subclass_of($value, Enum::class)) {
             return $value->value();

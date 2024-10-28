@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\HttpMethod;
 use Microsoft\Kiota\Abstractions\RequestInformation;
+use Microsoft\Kiota\Abstractions\Types\Date;
+use Microsoft\Kiota\Abstractions\Types\Time;
 use PHPUnit\Framework\TestCase;
 use Microsoft\Kiota\Abstractions\QueryParameter;
 
@@ -88,6 +90,72 @@ class RequestInformationTest extends TestCase {
         // Assert
         $uri = $requestInfo->getUri();
         $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01T02%3A33%3A00%2B02%3A00',toDateTime='2022-08-02T10%3A00%3A00-01%3A00')", $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
+    public function testPathParametersOfDateTimeType(): void
+    {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "https://localhost/getDirectRoutingCalls(fromDateTime='{fromDateTime}',toDateTime='{toDateTime}')";
+
+        // Act
+        $fromDateTime = new DateTime("2022-08-01T2:33");
+        $toDateTime  = new DateTime('2022-08-02T10:00');
+        $requestInfo->pathParameters["fromDateTime"] = $fromDateTime;
+        $requestInfo->pathParameters["toDateTime"] =  $toDateTime;
+
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01T02%3A33%3A00%2B00%3A00',toDateTime='2022-08-02T10%3A00%3A00%2B00%3A00')", $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
+    public function testPathParametersOfTimeType(): void
+    {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "https://localhost/getDirectRoutingCalls(fromDateTime='{fromDateTime}',toDateTime='{toDateTime}')";
+
+        // Act
+        $fromDateTime = Time::createFromDateTime(new DateTime("2022-08-01T2:33", new DateTimeZone('+02:00')));
+        $toDateTime  = Time::createFromDateTime(new DateTime('2022-08-02T10:00', new DateTimeZone('-1:00')));
+        $requestInfo->pathParameters["fromDateTime"] = $fromDateTime;
+        $requestInfo->pathParameters["toDateTime"] =  $toDateTime;
+
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='02%3A33%3A00',toDateTime='10%3A00%3A00')", $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
+    public function testPathParametersOfDateType(): void
+    {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "https://localhost/getDirectRoutingCalls(fromDateTime='{fromDateTime}',toDateTime='{toDateTime}')";
+
+        // Act
+        $fromDateTime = Date::createFromDateTime(new DateTime("2022-08-01T2:33", new DateTimeZone('+02:00')));
+        $toDateTime  = Date::createFromDateTime(new DateTime('2022-08-02T10:00', new DateTimeZone('-1:00')));
+        $requestInfo->pathParameters["fromDateTime"] = $fromDateTime;
+        $requestInfo->pathParameters["toDateTime"] =  $toDateTime;
+
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01',toDateTime='2022-08-02')", $uri);
     }
 
     public function testCanHandleBooleanTypes(): void {

@@ -11,9 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [1.4.1]
+
+### Changed
+
+- Update to support std uri template v2 [#166](https://github.com/microsoft/kiota-abstractions-php/issues/166)
+
 ## [1.4.0]
 
 ### Added
+
 - Add interface for ComposedTypeWrapper for marking composed types.
 
 ### Changed
