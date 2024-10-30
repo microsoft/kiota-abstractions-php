@@ -1,6 +1,7 @@
 <?php
 
 namespace Microsoft\Kiota\Abstractions\Tests;
+use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -156,6 +157,26 @@ class RequestInformationTest extends TestCase {
         // Assert
         $uri = $requestInfo->getUri();
         $this->assertEquals("https://localhost/getDirectRoutingCalls(fromDateTime='2022-08-01',toDateTime='2022-08-02')", $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
+    public function testPathParametersOfDateIntervalType(): void
+    {
+        // Arrange as the request builders would
+        $requestInfo = new RequestInformation();
+        $requestInfo->httpMethod = HttpMethod::GET;
+        $requestInfo->urlTemplate = "https://localhost/getDirectRoutingCalls(period='{period}')";
+
+        // Act
+        $period = DateInterval::createFromDateString('1 day 3 hours');
+        $requestInfo->pathParameters["period"] =  $period;
+
+        // Assert
+        $uri = $requestInfo->getUri();
+        $this->assertEquals("https://localhost/getDirectRoutingCalls(period='P1DT3H')", $uri);
     }
 
     public function testCanHandleBooleanTypes(): void {

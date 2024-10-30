@@ -1,12 +1,14 @@
 <?php
 namespace Microsoft\Kiota\Abstractions;
 
+use DateInterval;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use Microsoft\Kiota\Abstractions\Serialization\SerializationWriterToStringTrait;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
 use OpenTelemetry\API\Trace\StatusCode;
@@ -16,6 +18,7 @@ use RuntimeException;
 use StdUriTemplate\StdUriTemplate;
 
 class RequestInformation {
+    use SerializationWriterToStringTrait;
     /** @var string $RAW_URL_KEY */
     public static string $RAW_URL_KEY = 'request-raw-url';
     /** @var string $urlTemplate The url template for the current request */
@@ -106,6 +109,9 @@ class RequestInformation {
         }
         if (is_object($value) && is_a($value, Time::class)) {
             return $value->__toString();
+        }
+        if (is_object($value) && is_a($value, DateInterval::class)) {
+            return $this->getDateIntervalValueAsString($value);
         }
         if (is_object($value) && is_subclass_of($value, Enum::class)) {
             return $value->value();
