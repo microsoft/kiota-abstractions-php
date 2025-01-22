@@ -1,0 +1,9 @@
+parameters:
+  level: 9
+  polluteScopeWithAlwaysIterableForeach: false
+  polluteScopeWithLoopInitialAssignments: false
+  paths:
+    - src
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    - '/^Parameter #1 \$[A-Za-z_0-9]+ of function is_subclass_of expects object\|string, mixed given.$/'
