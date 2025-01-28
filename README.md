@@ -13,10 +13,12 @@ Read more about Kiota [here](https://github.com/microsoft/kiota/blob/main/README
 ## Using the Abstractions Library
 run `composer require microsoft/kiota-abstractions` or add the following to your `composer.json` file:
 
-```Shell
+```
 {
     "require": {
+        // x-release-please-start-version
         "microsoft/kiota-abstractions": "^1.4.0"
+        // x-release-please-end
     }
 }
 ```
