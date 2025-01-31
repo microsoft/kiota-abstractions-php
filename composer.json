@@ -1,7 +1,6 @@
 {
     "name": "microsoft/kiota-abstractions",
     "description": "Abstractions for Kiota",
-	"version": "1.4.0",
     "type": "library",
     "license": "MIT",
     "authors": [
