@@ -12,7 +12,7 @@ use Exception;
 trait ParseNodeFromStringTrait
 {
     /**
-     * @throws Exception
+     * @throws Exception when unable to parse the DateInterval string
      */
     private function parseDateIntervalFromString(string $value): DateInterval
     {
@@ -28,7 +28,7 @@ trait ParseNodeFromStringTrait
 
         // Strip fractional seconds, e.g., PT33.48S => PT33S
         $str = preg_replace('/(\d+)\.\d+S$/', '$1S', $str);
-        
+
         if (is_null($str)) {
             throw new Exception("Invalid DateInterval string: '$value'");
         }
