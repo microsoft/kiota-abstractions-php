@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1](https://github.com/microsoft/kiota-php/compare/microsoft-kiota-abstractions-v1.5.0...microsoft-kiota-abstractions-v1.5.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* Strip fractional seconds from date interval strings ([5987666](https://github.com/microsoft/kiota-php/commit/5987666f07bb1c0c87710d22daa3cd46af8ac3be))
+* Strip fractional seconds from date interval strings ([a717930](https://github.com/microsoft/kiota-php/commit/a7179309cf117bf76fe7e62ba7f16ce82ba9e268))
+
 ## [1.5.0](https://github.com/microsoft/kiota-php/compare/microsoft-kiota-abstractions-v1.4.0...microsoft-kiota-abstractions-v1.5.0) (2025-02-10)
 
 
