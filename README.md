@@ -17,7 +17,7 @@ run `composer require microsoft/kiota-abstractions` or add the following to your
 {
     "require": {
         // x-release-please-start-version
-        "microsoft/kiota-abstractions": "^1.5.0"
+        "microsoft/kiota-abstractions": "^1.5.1"
         // x-release-please-end
     }
 }
