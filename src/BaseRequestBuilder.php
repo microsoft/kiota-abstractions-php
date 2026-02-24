@@ -2,6 +2,9 @@
 
 namespace Microsoft\Kiota\Abstractions;
 
+/**
+ * Base class for request builders
+ */
 abstract class BaseRequestBuilder
 {
     /** @var array<string, mixed> $pathParameters  */
