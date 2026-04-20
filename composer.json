@@ -24,7 +24,6 @@
 	"require": {
 		"php": "^8.2",
 		"php-http/promise": "~1.2.0",
-		"doctrine/annotations": "^1.13 || ^2.0",
 		"open-telemetry/sdk": "^1.0.0",
 		"ramsey/uuid": "^4.2.3",
 		"stduritemplate/stduritemplate": "^0.0.53 || ^0.0.54 || ^0.0.55 || ^0.0.56 || ^0.0.57 || ^0.0.59 || ^1.0.0 || ^2.0.0",

@@ -4,7 +4,6 @@ namespace Microsoft\Kiota\Abstractions;
 use DateInterval;
 use DateTime;
 use DateTimeInterface;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Serialization\Parsable;
@@ -47,7 +46,6 @@ class RequestInformation {
     private static string $binaryContentType = 'application/octet-stream';
     /** @var non-empty-string $contentTypeHeader */
     public static string $contentTypeHeader = 'Content-Type';
-    private static AnnotationReader $annotationReader;
     /**
      * @var ObservabilityOptions $observabilityOptions
      */
@@ -62,8 +60,6 @@ class RequestInformation {
         $this->headers = new RequestHeaders();
         $this->observabilityOptions = $observabilityOptions ?? new ObservabilityOptions();
         $this->tracer = $this->observabilityOptions::getTracer();
-        // Init annotation utils
-        self::$annotationReader = new AnnotationReader();
     }
 
     /** Gets the URI of the request.
@@ -314,15 +310,33 @@ class RequestInformation {
         $reflectionClass = new \ReflectionClass($queryParameters);
         foreach ($reflectionClass->getProperties() as $classProperty) {
             $propertyValue = $classProperty->getValue($queryParameters);
-            $propertyAnnotation = self::$annotationReader->getPropertyAnnotation($classProperty, QueryParameter::class);
-            if ($propertyValue) {
-                if ($propertyAnnotation) {
-                    $this->queryParameters[$propertyAnnotation->name] = $propertyValue;
+            if ($propertyValue !== null) {
+                $annotatedName = self::readQueryParameterName($classProperty);
+                if ($annotatedName !== null) {
+                    $this->queryParameters[$annotatedName] = $propertyValue;
                     continue;
                 }
                 $this->queryParameters[$classProperty->name] = $propertyValue;
             }
         }
+    }
+
+    /**
+     * Resolve the custom `@QueryParameter("name")` docblock annotation on a
+     * reflected property.
+     *
+     * Replaces the previous `doctrine/annotations` lookup with native parsing
+     * so the abandoned Doctrine dependency can be dropped without touching
+     * any already-generated client SDK that still uses the docblock form.
+     */
+    private static function readQueryParameterName(\ReflectionProperty $property): ?string
+    {
+        $docComment = $property->getDocComment();
+        if ($docComment !== false && preg_match('/@QueryParameter\(\s*"([^"]+)"\s*\)/', $docComment, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     /**
