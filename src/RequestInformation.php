@@ -112,8 +112,21 @@ class RequestInformation {
         if (is_object($value) && is_subclass_of($value, Enum::class)) {
             return $value->value();
         }
-        return is_array($value) ?
-            array_map(fn ($x) => $this->sanitizeValue($x), $value) : $value;
+        if (is_array($value)) {
+            if (!array_is_list($value)) {
+                // Associative array (map-style query parameter): drop null entries per
+                // RFC 6570 §2.3 "undefined" semantics, then normalise remaining values.
+                $result = [];
+                foreach ($value as $k => $v) {
+                    if ($v !== null) {
+                        $result[(string)$k] = $this->sanitizeValue($v);
+                    }
+                }
+                return $result;
+            }
+            return array_map(fn ($x) => $this->sanitizeValue($x), $value);
+        }
+        return $value;
     }
 
     /**
