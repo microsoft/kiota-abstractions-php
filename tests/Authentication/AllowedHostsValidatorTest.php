@@ -48,6 +48,31 @@ class AllowedHostsValidatorTest extends TestCase
         $this->assertTrue($this->defaultValidator->isUrlHostValid("https://abc.com  "));
     }
 
+    public function testIsUrlHostValidWithSubdomainMatchingAllowedSuffix(): void
+    {
+        $validator = new AllowedHostsValidator([".fabric.microsoft.com"]);
+        $this->assertTrue($validator->isUrlHostValid("https://abc.123.graphql.fabric.microsoft.com/path"));
+    }
+
+    public function testIsUrlHostValidWithBareDomainAllowedAsSuffixReturnsFalse(): void
+    {
+        $validator = new AllowedHostsValidator([".fabric.microsoft.com"]);
+        $this->assertFalse($validator->isUrlHostValid("https://fabric.microsoft.com/path"));
+    }
+
+    public function testSuffixHostMatchingIsCaseInsensitive(): void
+    {
+        $validator = new AllowedHostsValidator([".Fabric.Microsoft.COM"]);
+        $this->assertTrue($validator->isUrlHostValid("https://ABC.z2c.graphql.fabric.microsoft.com/path"));
+    }
+
+    public function testAllowsSuffixBasedHostsAfterUpdate(): void
+    {
+        $validator = new AllowedHostsValidator(["example.com"]);
+        $validator->setAllowedHosts([".fabric.microsoft.com"]);
+        $this->assertTrue($validator->isUrlHostValid("https://abc.123.graphql.fabric.microsoft.com/path"));
+    }
+
     public function testIsUrlHostValidWithEmptyAllowedHostsReturnsTrue(): void
     {
         $validator = new AllowedHostsValidator();

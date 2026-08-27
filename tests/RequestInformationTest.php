@@ -270,6 +270,112 @@ class RequestInformationTest extends TestCase {
         $this->assertEquals(1, count($res));
         $this->assertEquals("value1", $res[0]);
     }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testExpandsMapQueryParameterAsIndividualKeyValuePairs(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*}';
+        $requestInfo->queryParameters['query'] = [
+            'filter' => 'equals(published,true)',
+            'sort'   => '-createdAt',
+        ];
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringContainsString('?', $uri);
+        $this->assertStringContainsString('filter=equals%28published%2Ctrue%29', $uri);
+        $this->assertStringContainsString('sort=-createdAt', $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testMapQueryParameterNullValuesAreOmitted(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*}';
+        $requestInfo->queryParameters['query'] = [
+            'include' => 'author',
+            'exclude' => null,
+        ];
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringContainsString('include=author', $uri);
+        $this->assertStringNotContainsString('exclude', $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testMapQueryParameterEmptyStringValueIsIncluded(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*}';
+        $requestInfo->queryParameters['query'] = ['search' => ''];
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringContainsString('search=', $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testEmptyMapQueryParameterProducesNoQueryString(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*}';
+        $requestInfo->queryParameters['query'] = [];
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringNotContainsString('?', $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testAllNullMapQueryParameterProducesNoQueryString(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*}';
+        $requestInfo->queryParameters['query'] = ['a' => null, 'b' => null];
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringNotContainsString('?', $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testMixOfMapAndScalarQueryParameters(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*,top}';
+        $requestInfo->queryParameters['query'] = ['filter' => 'active'];
+        $requestInfo->queryParameters['top']   = 5;
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringContainsString('filter=active', $uri);
+        $this->assertStringContainsString('top=5', $uri);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function testMapQueryParameterViaSetQueryParameters(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = 'http://localhost/articles{?query*}';
+
+        $queryParam = new TestMapQueryParameter();
+        $queryParam->query = ['filter' => 'equals(published,true)', 'sort' => '-createdAt'];
+        $requestInfo->setQueryParameters($queryParam);
+
+        $uri = $requestInfo->getUri();
+
+        $this->assertStringContainsString('filter=equals%28published%2Ctrue%29', $uri);
+        $this->assertStringContainsString('sort=-createdAt', $uri);
+    }
 }
 
 class TestQueryParameter {
@@ -318,4 +424,9 @@ class TestFalsyQueryParameter {
 class TestEnum extends Enum {
     public const A = "a";
     public const B = "b";
+}
+
+class TestMapQueryParameter {
+    /** @var array<string,string|null>|null */
+    public ?array $query = null;
 }
