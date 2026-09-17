@@ -11,4 +11,5 @@ final class HttpMethod extends Enum {
     public const TRACE = "TRACE";
     public const HEAD = "HEAD";
     public const PUT = "PUT";
+    public const QUERY = "QUERY";
 }
