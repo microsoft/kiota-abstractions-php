@@ -16,7 +16,7 @@ class RequestHeaders
     {
         $result = [];
         foreach ($this->headers as $key => $value) {
-            $result[$key] = array_keys($value);
+            $result[$key] = $this->toValues($value);
         }
         return $result;
     }
@@ -28,7 +28,17 @@ class RequestHeaders
      */
     public function get(string $key): array
     {
-        return array_keys($this->headers[$this->normalize($key)] ?? []);
+        return $this->toValues($this->headers[$this->normalize($key)] ?? []);
+    }
+
+    /**
+     * PHP casts numeric string keys to int, so cast them back.
+     * @param array<string|int, bool> $values
+     * @return array<string>
+     */
+    private function toValues(array $values): array
+    {
+        return array_map('strval', array_keys($values));
     }
 
     /**

@@ -110,4 +110,12 @@ class RequestHeadersTest extends TestCase
         $this->assertEquals(["value1"], $headers->get("key1"));
         $this->assertEquals(["value2", "value3"], $headers->get("key2"));
     }
+
+    public function testNumericValuesAreReturnedAsStrings(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->add("Retry-Attempt", "1");
+        $this->assertSame(["1"], $headers->get("Retry-Attempt"));
+        $this->assertSame(["retry-attempt" => ["1"]], $headers->getAll());
+    }
 }
