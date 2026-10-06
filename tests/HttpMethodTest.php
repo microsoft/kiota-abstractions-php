@@ -16,4 +16,9 @@ class HttpMethodTest extends TestCase {
         $httpMethod = new HttpMethod(HttpMethod::GET);
         $this->assertEquals('GET', $httpMethod->value());
     }
+
+    public function testCanSetQueryHttpMethod(): void {
+        $httpMethod = new HttpMethod(HttpMethod::QUERY);
+        $this->assertEquals('QUERY', $httpMethod->value());
+    }
 }
