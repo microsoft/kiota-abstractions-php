@@ -94,4 +94,13 @@ class AllowedHostsValidatorTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->defaultValidator->isUrlHostValid("http/abc?%#:8080");
     }
+    public function testBlankOnlyAllowedHostsDoesNotBecomeUnrestricted(): void
+    {
+        $validator1 = new AllowedHostsValidator(["", "   "]);
+        $this->assertFalse($validator1->isUrlHostValid("https://untrusted.example.com/path"));
+
+        $validator2 = new AllowedHostsValidator(["example.com"]);
+        $validator2->setAllowedHosts(["   ", ""]);
+        $this->assertFalse($validator2->isUrlHostValid("https://untrusted.example.com/path"));
+    }
 }
