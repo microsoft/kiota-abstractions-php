@@ -31,6 +31,15 @@ class AllowedHostsValidatorTest extends TestCase
         $this->assertEquals($expected, $validator->getAllowedHosts());
     }
 
+    public function testSetAllowedHostsOverwritesPreviousHosts(): void
+    {
+        $validator = new AllowedHostsValidator(["old.com"]);
+        $validator->setAllowedHosts(["new.com"]);
+        $this->assertEquals(["new.com"], $validator->getAllowedHosts());
+        $this->assertTrue($validator->isUrlHostValid("https://new.com/path"));
+        $this->assertFalse($validator->isUrlHostValid("https://old.com/path"));
+    }
+
     public function testShouldThrowException(): void
     {
         $hosts = ["https://abc.com "];
@@ -71,6 +80,7 @@ class AllowedHostsValidatorTest extends TestCase
         $validator = new AllowedHostsValidator(["example.com"]);
         $validator->setAllowedHosts([".fabric.microsoft.com"]);
         $this->assertTrue($validator->isUrlHostValid("https://abc.123.graphql.fabric.microsoft.com/path"));
+        $this->assertFalse($validator->isUrlHostValid("https://example.com/path"));
     }
 
     public function testIsUrlHostValidWithEmptyAllowedHostsReturnsTrue(): void
@@ -83,5 +93,14 @@ class AllowedHostsValidatorTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->defaultValidator->isUrlHostValid("http/abc?%#:8080");
+    }
+    public function testBlankOnlyAllowedHostsDoesNotBecomeUnrestricted(): void
+    {
+        $validator1 = new AllowedHostsValidator(["", "   "]);
+        $this->assertFalse($validator1->isUrlHostValid("https://untrusted.example.com/path"));
+
+        $validator2 = new AllowedHostsValidator(["example.com"]);
+        $validator2->setAllowedHosts(["   ", ""]);
+        $this->assertFalse($validator2->isUrlHostValid("https://untrusted.example.com/path"));
     }
 }
