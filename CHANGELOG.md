@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.3](https://github.com/microsoft/kiota-php/compare/microsoft-kiota-abstractions-v2.2.2...microsoft-kiota-abstractions-v2.2.3) (2026-11-03)
+
+
+### Bug Fixes
+
+* **abstractions:** preserve blank allowlist entries and prevent unrestricted fallback ([#125](https://github.com/microsoft/kiota-php/issues/125)) ([d96875b](https://github.com/microsoft/kiota-php/commit/d96875b4ed192737175bb2c5c8339bb9e08390d2))
+* **abstractions:** replace rather than append allowed hosts in setAllowedHosts ([#122](https://github.com/microsoft/kiota-php/issues/122)) ([96109ad](https://github.com/microsoft/kiota-php/commit/96109ad7597edcbf5170bcb1c5baf68679d70946))
+
 ## [2.2.2](https://github.com/microsoft/kiota-php/compare/microsoft-kiota-abstractions-v2.2.1...microsoft-kiota-abstractions-v2.2.2) (2026-10-21)
 
 
