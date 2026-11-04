@@ -118,4 +118,20 @@ class RequestHeadersTest extends TestCase
         $this->assertSame(["1"], $headers->get("Retry-Attempt"));
         $this->assertSame(["retry-attempt" => ["1"]], $headers->getAll());
     }
+
+    public function testAddAndTryAddWithWhitespaceNormalized(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->add("  Content-Type  ", "application/json");
+        $this->assertTrue($headers->contains("Content-Type"));
+        $this->assertEquals(["application/json"], $headers->get("Content-Type"));
+        $this->assertEquals(["application/json"], $headers->get("content-type"));
+
+        $this->assertFalse($headers->tryAdd("  content-type  ", "text/plain"));
+        $this->assertEquals(["application/json"], $headers->get("Content-Type"));
+
+        $headers->remove(" Content-Type ");
+        $this->assertFalse($headers->contains("Content-Type"));
+        $this->assertEmpty($headers->get("Content-Type"));
+    }
 }

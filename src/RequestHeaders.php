@@ -49,7 +49,7 @@ class RequestHeaders
      */
     public function add(string $key, string $value): void
     {
-        $lowercaseKey = strtolower($key);
+        $lowercaseKey = $this->normalize($key);
         if (array_key_exists($lowercaseKey, $this->headers)) {
             $this->headers[$lowercaseKey][$value] = true;
         } else {
@@ -65,7 +65,7 @@ class RequestHeaders
      */
     public function tryAdd(string $key, string $value): bool
     {
-        $lowercaseKey = strtolower($key);
+        $lowercaseKey = $this->normalize($key);
         if (array_key_exists($lowercaseKey, $this->headers)) {
             return false;
         } else {
