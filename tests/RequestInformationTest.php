@@ -8,6 +8,7 @@ use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\HttpMethod;
+use Microsoft\Kiota\Abstractions\MultiPartBody;
 use Microsoft\Kiota\Abstractions\ObservabilityOptions;
 use Microsoft\Kiota\Abstractions\RequestAdapter;
 use Microsoft\Kiota\Abstractions\RequestInformation;
@@ -289,6 +290,80 @@ class RequestInformationTest extends TestCase {
         $res = $requestInfo->getHeaders()->get("key");
         $this->assertEquals(1, count($res));
         $this->assertEquals("value1", $res[0]);
+    }
+
+    public function testRemoveHeaderValue(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->addHeader('Accept', 'application/json');
+        $requestInfo->addHeader('Accept', 'text/plain');
+
+        $this->assertTrue($requestInfo->removeHeaderValue('Accept', 'application/json'));
+        $this->assertEquals(['text/plain'], $requestInfo->getHeaders()->get('Accept'));
+        $this->assertTrue($requestInfo->getHeaders()->contains('Accept'));
+
+        $this->assertTrue($requestInfo->removeHeaderValue('Accept', 'text/plain'));
+        $this->assertFalse($requestInfo->getHeaders()->contains('Accept'));
+        $this->assertEmpty($requestInfo->getHeaders()->get('Accept'));
+
+        $this->assertFalse($requestInfo->removeHeaderValue('Accept', 'not-present'));
+    }
+
+    public function testSetContentFromParsableSetsMultipartBoundaryOnContentTypeHeader(): void {
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('--boundary--');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $multipart = new MultiPartBody();
+        $requestInfo->setContentFromParsable($requestAdapter, 'multipart/form-data', $multipart);
+
+        $this->assertSame($stream, $requestInfo->content);
+        $contentTypeHeaders = $requestInfo->getHeaders()->get('Content-Type');
+        $this->assertCount(1, $contentTypeHeaders);
+        $this->assertEquals("multipart/form-data; boundary={$multipart->getBoundary()}", $contentTypeHeaders[0]);
+        $this->assertTrue(ctype_print($multipart->getBoundary()));
+        $this->assertTrue(ctype_xdigit($multipart->getBoundary()));
+    }
+
+    public function testSetContentFromParsableWithBoundaryZero(): void {
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('--0--');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $multipart = new MultiPartBody('0');
+        $requestInfo->setContentFromParsable($requestAdapter, 'multipart/form-data', $multipart);
+
+        $contentTypeHeaders = $requestInfo->getHeaders()->get('Content-Type');
+        $this->assertEquals(['multipart/form-data; boundary=0'], $contentTypeHeaders);
+    }
+
+    public function testSetContentFromParsableQuotesNonTokenBoundary(): void {
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('--custom:boundary=1--');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $multipart = new MultiPartBody('custom:boundary=1');
+        $requestInfo->setContentFromParsable($requestAdapter, 'multipart/form-data', $multipart);
+
+        $contentTypeHeaders = $requestInfo->getHeaders()->get('Content-Type');
+        $this->assertEquals(['multipart/form-data; boundary="custom:boundary=1"'], $contentTypeHeaders);
     }
 
     /**

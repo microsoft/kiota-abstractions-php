@@ -221,7 +221,9 @@ class RequestInformation {
             $writer = $requestAdapter->getSerializationWriterFactory()->getSerializationWriter($contentType);
 
             if (is_a($value, MultiPartBody::class)) {
-                $contentType = "$contentType; boundary={$value->getBoundary()}";
+                $boundary = $value->getBoundary();
+                $formattedBoundary = preg_match('/^[a-zA-Z0-9\'!#$%&*+\-.^_`|~]+$/', $boundary) ? $boundary : "\"$boundary\"";
+                $contentType = "$contentType; boundary=$formattedBoundary";
                 $value->setRequestAdapter($requestAdapter);
             }
 
@@ -421,6 +423,17 @@ class RequestInformation {
     public function removeHeader(string $key): void
     {
         $this->headers->remove($key);
+    }
+
+    /**
+     * Removes a specific value from the request headers.
+     * @param string $key
+     * @param string $value
+     * @return bool True if the value was found and removed, false otherwise.
+     */
+    public function removeHeaderValue(string $key, string $value): bool
+    {
+        return $this->headers->removeValue($key, $value);
     }
 
     /**
