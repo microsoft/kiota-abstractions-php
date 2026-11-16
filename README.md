@@ -2,7 +2,6 @@
 
 ![Build Status](https://github.com/microsoft/kiota-abstractions-php/actions/workflows/pr-validation.yml/badge.svg)
 [![Latest Stable Version](https://poser.pugx.org/microsoft/kiota-abstractions/version)](https://packagist.org/packages/microsoft/kiota-abstractions)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=microsoft_kiota-abstractions-php&metric=coverage)](https://sonarcloud.io/dashboard?id=microsoft_kiota-abstractions-php)
 
 The Kiota abstractions Library for PHP is the PHP library defining the basic constructs Kiota projects need once an SDK has been generated from an OpenAPI definition.
 
