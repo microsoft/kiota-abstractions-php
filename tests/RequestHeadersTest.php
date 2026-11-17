@@ -118,4 +118,62 @@ class RequestHeadersTest extends TestCase
         $this->assertSame(["1"], $headers->get("Retry-Attempt"));
         $this->assertSame(["retry-attempt" => ["1"]], $headers->getAll());
     }
+
+    public function testAddAndTryAddWithWhitespaceNormalized(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->add("  Content-Type  ", "application/json");
+        $this->assertTrue($headers->contains("Content-Type"));
+        $this->assertEquals(["application/json"], $headers->get("Content-Type"));
+        $this->assertEquals(["application/json"], $headers->get("content-type"));
+
+        $this->assertFalse($headers->tryAdd("  content-type  ", "text/plain"));
+        $this->assertEquals(["application/json"], $headers->get("Content-Type"));
+
+        $headers->remove(" Content-Type ");
+        $this->assertFalse($headers->contains("Content-Type"));
+        $this->assertEmpty($headers->get("Content-Type"));
+    }
+
+    public function testRemoveValueRemovesSingleValueFromMultiValueHeader(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->add('Accept', 'application/json');
+        $headers->add('Accept', 'text/plain');
+
+        $this->assertTrue($headers->removeValue('Accept', 'application/json'));
+        $this->assertEquals(['text/plain'], $headers->get('Accept'));
+        $this->assertTrue($headers->contains('Accept'));
+    }
+
+    public function testRemoveValueRemovesHeaderKeyWhenLastValueRemoved(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->add('Accept', 'application/json');
+
+        $this->assertTrue($headers->removeValue('accept', 'application/json'));
+        $this->assertFalse($headers->contains('Accept'));
+        $this->assertEmpty($headers->get('Accept'));
+        $this->assertNotContains('accept', $headers->getHeaderNames());
+        $this->assertEquals(0, $headers->count());
+    }
+
+    public function testRemoveValueReturnsFalseWhenHeaderOrValueNotFound(): void
+    {
+        $headers = new RequestHeaders();
+        $this->assertFalse($headers->removeValue('Non-Existent', 'value'));
+
+        $headers->add('Accept', 'application/json');
+        $this->assertFalse($headers->removeValue('Accept', 'text/plain'));
+        $this->assertEquals(['application/json'], $headers->get('Accept'));
+    }
+
+    public function testRemoveValueWithWhitespaceNormalizedKey(): void
+    {
+        $headers = new RequestHeaders();
+        $headers->add('  Accept  ', 'application/json');
+
+        $this->assertTrue($headers->removeValue('  Accept  ', 'application/json'));
+        $this->assertFalse($headers->contains('Accept'));
+    }
 }

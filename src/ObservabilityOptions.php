@@ -13,7 +13,9 @@ class ObservabilityOptions implements RequestOption
 
     public function __construct()
     {
-        self::$tracer = Globals::tracerProvider()->getTracer(self::OBSERVABILITY_TRACER_NAME, Constants::VERSION);
+        if (self::$tracer === null) {
+            self::$tracer = Globals::tracerProvider()->getTracer(self::OBSERVABILITY_TRACER_NAME, Constants::VERSION);
+        }
     }
 
     /**
@@ -27,7 +29,7 @@ class ObservabilityOptions implements RequestOption
         return self::$tracer;
     }
 
-    public static function setTracer(TracerInterFace $tracer): void
+    public static function setTracer(?TracerInterface $tracer): void
     {
         self::$tracer = $tracer;
     }

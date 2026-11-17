@@ -49,7 +49,7 @@ class RequestHeaders
      */
     public function add(string $key, string $value): void
     {
-        $lowercaseKey = strtolower($key);
+        $lowercaseKey = $this->normalize($key);
         if (array_key_exists($lowercaseKey, $this->headers)) {
             $this->headers[$lowercaseKey][$value] = true;
         } else {
@@ -65,7 +65,7 @@ class RequestHeaders
      */
     public function tryAdd(string $key, string $value): bool
     {
-        $lowercaseKey = strtolower($key);
+        $lowercaseKey = $this->normalize($key);
         if (array_key_exists($lowercaseKey, $this->headers)) {
             return false;
         } else {
@@ -93,6 +93,29 @@ class RequestHeaders
     public function remove(string $key): void
     {
         unset($this->headers[$this->normalize($key)]);
+    }
+
+    /**
+     * Remove a specific value for a specific header.
+     *
+     * @param string $key
+     * @param string $value
+     * @return bool True if the value was found and removed, false otherwise.
+     */
+    public function removeValue(string $key, string $value): bool
+    {
+        $lowercaseKey = $this->normalize($key);
+        if (!array_key_exists($lowercaseKey, $this->headers)) {
+            return false;
+        }
+        if (!array_key_exists($value, $this->headers[$lowercaseKey])) {
+            return false;
+        }
+        unset($this->headers[$lowercaseKey][$value]);
+        if (empty($this->headers[$lowercaseKey])) {
+            unset($this->headers[$lowercaseKey]);
+        }
+        return true;
     }
 
     /**

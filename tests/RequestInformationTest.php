@@ -8,17 +8,38 @@ use Exception;
 use InvalidArgumentException;
 use Microsoft\Kiota\Abstractions\Enum;
 use Microsoft\Kiota\Abstractions\HttpMethod;
+use Microsoft\Kiota\Abstractions\MultiPartBody;
+use Microsoft\Kiota\Abstractions\ObservabilityOptions;
+use Microsoft\Kiota\Abstractions\RequestAdapter;
 use Microsoft\Kiota\Abstractions\RequestInformation;
+use Microsoft\Kiota\Abstractions\RequestOption;
+use Microsoft\Kiota\Abstractions\Serialization\Parsable;
+use Microsoft\Kiota\Abstractions\Serialization\SerializationWriter;
+use Microsoft\Kiota\Abstractions\Serialization\SerializationWriterFactory;
 use Microsoft\Kiota\Abstractions\Types\Date;
 use Microsoft\Kiota\Abstractions\Types\Time;
+use OpenTelemetry\API\Trace\SpanBuilderInterface;
+use OpenTelemetry\API\Trace\SpanInterface;
+use OpenTelemetry\API\Trace\StatusCode;
+use OpenTelemetry\API\Trace\TracerInterface;
+use OpenTelemetry\Context\ScopeInterface;
 use PHPUnit\Framework\TestCase;
 use Microsoft\Kiota\Abstractions\QueryParameter;
 
 class RequestInformationTest extends TestCase {
     private RequestInformation $requestInformation;
+    private ?TracerInterface $originalTracer = null;
 
     protected function setUp(): void {
         $this->requestInformation = new RequestInformation();
+        $this->originalTracer = ObservabilityOptions::getTracer();
+    }
+
+    protected function tearDown(): void {
+        if ($this->originalTracer !== null) {
+            ObservabilityOptions::setTracer($this->originalTracer);
+        }
+        parent::tearDown();
     }
 
     /**
@@ -271,6 +292,80 @@ class RequestInformationTest extends TestCase {
         $this->assertEquals("value1", $res[0]);
     }
 
+    public function testRemoveHeaderValue(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->addHeader('Accept', 'application/json');
+        $requestInfo->addHeader('Accept', 'text/plain');
+
+        $this->assertTrue($requestInfo->removeHeaderValue('Accept', 'application/json'));
+        $this->assertEquals(['text/plain'], $requestInfo->getHeaders()->get('Accept'));
+        $this->assertTrue($requestInfo->getHeaders()->contains('Accept'));
+
+        $this->assertTrue($requestInfo->removeHeaderValue('Accept', 'text/plain'));
+        $this->assertFalse($requestInfo->getHeaders()->contains('Accept'));
+        $this->assertEmpty($requestInfo->getHeaders()->get('Accept'));
+
+        $this->assertFalse($requestInfo->removeHeaderValue('Accept', 'not-present'));
+    }
+
+    public function testSetContentFromParsableSetsMultipartBoundaryOnContentTypeHeader(): void {
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('--boundary--');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $multipart = new MultiPartBody();
+        $requestInfo->setContentFromParsable($requestAdapter, 'multipart/form-data', $multipart);
+
+        $this->assertSame($stream, $requestInfo->content);
+        $contentTypeHeaders = $requestInfo->getHeaders()->get('Content-Type');
+        $this->assertCount(1, $contentTypeHeaders);
+        $this->assertEquals("multipart/form-data; boundary={$multipart->getBoundary()}", $contentTypeHeaders[0]);
+        $this->assertTrue(ctype_print($multipart->getBoundary()));
+        $this->assertTrue(ctype_xdigit($multipart->getBoundary()));
+    }
+
+    public function testSetContentFromParsableWithBoundaryZero(): void {
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('--0--');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $multipart = new MultiPartBody('0');
+        $requestInfo->setContentFromParsable($requestAdapter, 'multipart/form-data', $multipart);
+
+        $contentTypeHeaders = $requestInfo->getHeaders()->get('Content-Type');
+        $this->assertEquals(['multipart/form-data; boundary=0'], $contentTypeHeaders);
+    }
+
+    public function testSetContentFromParsableQuotesNonTokenBoundary(): void {
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('--custom:boundary=1--');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $multipart = new MultiPartBody('custom:boundary=1');
+        $requestInfo->setContentFromParsable($requestAdapter, 'multipart/form-data', $multipart);
+
+        $contentTypeHeaders = $requestInfo->getHeaders()->get('Content-Type');
+        $this->assertEquals(['multipart/form-data; boundary="custom:boundary=1"'], $contentTypeHeaders);
+    }
+
     /**
      * @throws InvalidArgumentException
      */
@@ -376,6 +471,116 @@ class RequestInformationTest extends TestCase {
         $this->assertStringContainsString('filter=equals%28published%2Ctrue%29', $uri);
         $this->assertStringContainsString('sort=-createdAt', $uri);
     }
+
+    public function testGetRequestOptionDirectAndPolymorphic(): void {
+        $requestInfo = new RequestInformation();
+        $option = new TestCustomRequestOption();
+        $requestInfo->addRequestOptions($option);
+
+        $this->assertSame($option, $requestInfo->getRequestOption(TestCustomRequestOption::class));
+        $this->assertSame($option, $requestInfo->getRequestOption(RequestOption::class));
+        $this->assertNull($requestInfo->getRequestOption(TestOtherOption::class));
+    }
+
+    public function testGetUriThrowsOnEmptyBaseUrl(): void {
+        $requestInfo = new RequestInformation();
+        $requestInfo->urlTemplate = '{+baseurl}/users';
+        $requestInfo->pathParameters['baseurl'] = '   ';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('PathParameters must contain a value for "baseurl" for the url to be built.');
+        $requestInfo->getUri();
+    }
+
+    public function testSetContentFromParsableCollection(): void {
+        $span = $this->createMock(SpanInterface::class);
+        $scope = $this->createMock(ScopeInterface::class);
+        $spanBuilder = $this->createMock(SpanBuilderInterface::class);
+        $tracer = $this->createMock(TracerInterface::class);
+
+        $tracer->expects($this->once())
+            ->method('spanBuilder')
+            ->with('setContentFromParsableCollection')
+            ->willReturn($spanBuilder);
+        $spanBuilder->expects($this->once())
+            ->method('startSpan')
+            ->willReturn($span);
+        $span->expects($this->once())
+            ->method('activate')
+            ->willReturn($scope);
+        $span->expects($this->once())
+            ->method('setStatus')
+            ->with(StatusCode::STATUS_OK);
+        $span->expects($this->once())
+            ->method('end');
+        $scope->expects($this->once())
+            ->method('detach');
+
+        ObservabilityOptions::setTracer($tracer);
+
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $serializationWriter = $this->createMock(SerializationWriter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor('[{"id": 1}]');
+        $serializationWriter->method('getSerializedContent')->willReturn($stream);
+        $writerFactory->method('getSerializationWriter')->willReturn($serializationWriter);
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $parsable = new TestParsableModel();
+        $requestInfo->setContentFromParsableCollection($requestAdapter, 'application/json', [$parsable]);
+
+        $this->assertSame($stream, $requestInfo->content);
+        $this->assertEquals(['application/json'], $requestInfo->getHeaders()->get('Content-Type'));
+    }
+
+    public function testSetContentFromParsableCollectionThrowsOnWriterError(): void {
+        $span = $this->createMock(SpanInterface::class);
+        $scope = $this->createMock(ScopeInterface::class);
+        $spanBuilder = $this->createMock(SpanBuilderInterface::class);
+        $tracer = $this->createMock(TracerInterface::class);
+
+        $tracer->expects($this->once())
+            ->method('spanBuilder')
+            ->with('setContentFromParsableCollection')
+            ->willReturn($spanBuilder);
+        $spanBuilder->expects($this->once())
+            ->method('startSpan')
+            ->willReturn($span);
+        $span->expects($this->once())
+            ->method('activate')
+            ->willReturn($scope);
+        $span->expects($this->once())
+            ->method('recordException')
+            ->with($this->isInstanceOf(\RuntimeException::class));
+        $span->expects($this->once())
+            ->method('setStatus')
+            ->with(StatusCode::STATUS_ERROR);
+        $span->expects($this->once())
+            ->method('end');
+        $scope->expects($this->once())
+            ->method('detach');
+
+        ObservabilityOptions::setTracer($tracer);
+
+        $requestAdapter = $this->createMock(RequestAdapter::class);
+        $writerFactory = $this->createMock(SerializationWriterFactory::class);
+        $writerFactory->method('getSerializationWriter')->willThrowException(new Exception('writer failed'));
+        $requestAdapter->method('getSerializationWriterFactory')->willReturn($writerFactory);
+
+        $requestInfo = new RequestInformation();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('could not serialize payload.');
+        $requestInfo->setContentFromParsableCollection($requestAdapter, 'application/json', []);
+    }
+}
+
+class TestCustomRequestOption implements RequestOption {}
+class TestOtherOption implements RequestOption {}
+class TestParsableModel implements Parsable {
+    public function getFieldDeserializers(): array { return []; }
+    public function serialize(SerializationWriter $writer): void {}
 }
 
 class TestQueryParameter {
